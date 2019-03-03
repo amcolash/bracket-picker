@@ -4,6 +4,8 @@ var setsLength = 0;
 var selected = {};
 var currentSet = [];
 
+// TODO Hover zoom, speed up metadata?, smoother loading display, spinner sizing
+
 const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
@@ -20,6 +22,10 @@ window.onload = () => {
     image1.addEventListener("click", () => select(1));
     image2.addEventListener("click", () => select(0));
     image3.addEventListener("click", () => select(2));
+
+    image2.addEventListener("load", () => file2.innerText = getInfo(currentSet[0]));
+    image1.addEventListener("load", () => file1.innerText = getInfo(currentSet[1]));
+    image3.addEventListener("load", () => file3.innerText = getInfo(currentSet[2]));
 
     document.onkeydown = checkKey;
 }
@@ -75,9 +81,10 @@ function update(i) {
     image2.src = "";
     image3.src = "";
 
-    file1.innerText = "";
-    file2.innerText = "";
-    file3.innerText = "";
+    // 4 new lines so that things don't get funky with loading moving around layout
+    file1.innerText = "\n\n\n\n";
+    file2.innerText = "\n\n\n\n";
+    file3.innerText = "\n\n\n\n";
 
     section1.classList.remove("selected");
     section2.classList.remove("selected");
@@ -89,25 +96,22 @@ function update(i) {
 
         if (set.length > 0) {
             image2.src = set[0].PreviewFile;
-            file2.innerText = getInfo(set[0]);
             if (selected[set[0].SourceFile]) section2.classList.add("selected");
         }
 
         if (set.length > 1) {
             image1.src = set[1].PreviewFile;
-            file1.innerText = getInfo(set[1]);
             if (selected[set[1].SourceFile]) section1.classList.add("selected");
         }
 
         if (set.length > 2) {
             image3.src = set[2].PreviewFile;
-            file3.innerText = getInfo(set[2]);
             if (selected[set[2].SourceFile]) section3.classList.add("selected");
         }
         
-        image2.style.display = set.length > 0 ? "inline" : "none";
-        image1.style.display = set.length > 1 ? "inline" : "none";
-        image3.style.display = set.length > 2 ? "inline" : "none";
+        section2.style.display = set.length > 0 ? "inline" : "none";
+        section1.style.display = set.length > 1 ? "inline" : "none";
+        section3.style.display = set.length > 2 ? "inline" : "none";
     }
 }
 

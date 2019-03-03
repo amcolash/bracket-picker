@@ -39,7 +39,7 @@ img {
     display: none;
 }
 
-/* Loading spinner from https://projects.lukehaas.me/css-loaders/ */
+/* Loading spinner from https://loading.io/css/ */
 .lds-dual-ring {
     display: inline-block;
     position: relative;
