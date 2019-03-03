@@ -8,6 +8,10 @@ body {
     border-color: red;
 }
 
+.selected {
+    text-decoration: line-through;
+}
+
 img {
     max-width: 100%;
     max-height: calc(85vh);
@@ -24,7 +28,7 @@ img {
 }
 
 .images {
-    height: calc(90vh);
+    height: calc(95vh);
     display: flex;
     justify-content: center;
     align-items: center;

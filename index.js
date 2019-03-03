@@ -13,6 +13,7 @@ const PORT = 9000;
 const app = express();
 app.use(express.json());
 
+const EXTRACT = false;
 var sets = {};
 
 main();
@@ -20,7 +21,7 @@ main();
 async function main() {
     checkUsage();
 
-    //extractPreviews();
+    if (EXTRACT) extractPreviews();
     sets = await getMetaData();
 
     app.listen(PORT);
@@ -30,6 +31,7 @@ async function main() {
     app.use('/previews', express.static(tmpDir));
     app.get('/data', (req, res) => res.send(sets));
     app.post('/move', (req, res) => move(req, res));
+    app.post('/undo', (req, res) => undo(req, res));
 }
 
 function checkUsage() {
@@ -56,6 +58,9 @@ function extractPreviews() {
     // Fix orientation of vertical images
     console.log('Auto rotating preview images');
     runCommand('exifautotran ' + tmpDir + '*.jpg');
+
+    // Resizing doesn't seem to have an impact on image load but causes long delays on boot
+    // runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 2000 --rotate');
 }
 
 function runCommand(command) {
@@ -127,19 +132,6 @@ function generateSets(data) {
 async function move(req, res) {
     const files = req.body.files;
     
-    // fs.readdirSync(dir, function(err, items) {
-    //     if (err) {
-    //         console.error(err);
-    //         res.sendStatus(500);
-    //         return;
-    //     }
-        
-    //     for (var i = 0; i < items.length; i++) {
-    //         const file = dir + path.basename(items[i]);
-    //         if (files.indexOf(file) === -1) moved.push(file);
-    //     }
-    // });
-
     const dest = dir + 'moved/';
     fs.mkdirpSync(dest);
 
@@ -156,5 +148,21 @@ async function move(req, res) {
     }
     
     sets = await getMetaData();
+    res.sendStatus(200);
+}
+
+async function undo(req, res) {
+    try {
+        const files = fs.readdirSync(dir + 'moved/');
+        for (var i = 0; i < files.length; i++) {
+            fs.moveSync(dir + 'moved/' + files[i], dir + '/' + path.basename(files[i]));
+        }
+    } catch (err) {
+        console.error(err);
+    }
+    
+    extractPreviews();
+    sets = await getMetaData();
+    
     res.sendStatus(200);
 }

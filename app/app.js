@@ -4,7 +4,7 @@ var setsLength = 0;
 var selected = {};
 var currentSet = [];
 
-// TODO Hover zoom, speed up metadata?, smoother loading display, spinner sizing
+// TODO Hover zoom, speed up metadata?, smoother loading display, spinner sizing, resize images?
 
 const mod = (x, n) => (x % n + n) % n;
 
@@ -12,12 +12,13 @@ window.onload = () => {
     getData();
 
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
-    forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)))
-    backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)))
-    forwardLarge.addEventListener("click", () => update(mod(setIndex + 5, setsLength)))
+    forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)));
+    backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)));
+    forwardLarge.addEventListener("click", () => update(mod(setIndex + 5, setsLength)));
 
     reset.addEventListener("click", () => update(0));
     move.addEventListener("click", moveFiles);
+    undo.addEventListener("click", undoMove);
 
     image1.addEventListener("click", () => select(1));
     image2.addEventListener("click", () => select(0));
@@ -127,13 +128,27 @@ function moveFiles() {
     }
 
     axios.post('/move', { files: files }).then(data => {
-        console.log(data);
         move.disabled = false;
         loader.style.display = "none";
         getData();
     }).catch((err) => {
-        move.disabled = false;
         console.error(err);
+        move.disabled = false;
+        loader.style.display = "none";
+    });
+}
+
+function undoMove() {
+    undo.disabled = true;
+    loader.style.display = "inline-block";
+
+    axios.post('/undo').then(data => {
+        undo.disabled = false;
+        loader.style.display = "none";
+        getData();
+    }).catch((err) => {
+        console.error(err);
+        undo.disabled = false;
         loader.style.display = "none";
     });
 }
