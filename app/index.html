@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Bracket Picker</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <div id="controls">
+            <span id="stats"></span>
+            <button id="backLarge">&lt;&lt;</button>
+            <button id="back">&lt;</button>
+            <button id="forward">&gt;</button>
+            <button id="forwardLarge">&gt;&gt;</button>
+            <button id="reset">X</button>
+        </div>
+        <div class="images">
+            <div class="section"><div class="img"><img id="image1" src=""></div><br><span id="file1"></span></div>
+            <div class="section"><div class="img"><img id="image2" src=""></div><br><span id="file2"></span></div>
+            <div class="section"><div class="img"><img id="image3" src=""></div><br><span id="file3"></span></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</body>
+</html>

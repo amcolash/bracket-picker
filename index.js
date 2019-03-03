@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
@@ -6,7 +6,7 @@ const path = require('path');
 const exiftool = require('node-exiftool');
 const ep = new exiftool.ExiftoolProcess();
 
-const tmpDir = "/tmp/bracket-picker/";
+const tmpDir = '/tmp/bracket-picker/';
 
 const PORT = 9000;
 const app = express();
@@ -19,12 +19,13 @@ async function main() {
     // Get supplied directory
     const dir = process.argv[2];
 
-    //extractPreviews(dir);
+    extractPreviews(dir);
     const sets = await getMetaData(dir);
 
     app.listen(PORT);
     console.log(`Running on port ${PORT}`);
 
+    app.use('/', express.static(__dirname + '/app'));
     app.use('/previews', express.static(tmpDir));
     app.get('/data', (req, res) => res.send(sets));
 }
@@ -38,25 +39,37 @@ function checkUsage() {
 }
 
 function extractPreviews(dir) {
-    console.log("Cleaning tmp files");
+    console.log('Cleaning tmp files');
     fs.removeSync(tmpDir);
     fs.mkdirSync(tmpDir);
     
     // Extract images to tmpDir
-    console.log("Starting raw extraction");
-    exec('exiftool -a -b -W ' + tmpDir + '%f_%t%-c.%s -preview:PreviewImage ' + dir, (err, stdout, stderr) => {
+    console.log('Extracting raw previews');
+    runCommand('exiftool -b -previewimage -w ' + tmpDir + '%f.jpg --ext jpg ' + dir);
+
+    // Write tags to extracted images
+    console.log('Writing exif data to preview files');
+    runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + tmpDir + '%f.jpg -overwrite_original --ext jpg ' + dir);
+
+    // Fix orientation of vertical images
+    console.log('Auto rotating preview images');
+    runCommand('exifautotran ' + tmpDir + '*.jpg');
+}
+
+function runCommand(command) {
+    execSync(command, (err, stdout, stderr) => {
         if (err) {
             console.error(err);
             process.exit(1);
         }
         
         console.log(`${stdout}`);
-        // console.log(`stderr: ${stderr}`);
+        console.log(`${stderr}`);
     });
 }
 
 function getMetaData(dir) {
-    console.log("Getting meta data");
+    console.log('Getting meta data');
     return new Promise(resolve => {
         ep
             .open()
@@ -82,7 +95,8 @@ function generateSets(data) {
 
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
-        file.PreviewFile = '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '_PreviewImage.jpg';
+        file.FileName = path.basename(file.SourceFile);
+        file.PreviewFile = '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg';
     }
 
     for (i = 0; i < files.length; i++) {
