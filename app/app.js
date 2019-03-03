@@ -1,6 +1,8 @@
 var setIndex = 0;
 var sets = [];
 var setsLength = 0;
+var selected = {};
+var currentSet = [];
 
 window.onload = () => {
     axios.get('/data').then(data => {
@@ -14,10 +16,22 @@ window.onload = () => {
     backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)))
     forwardLarge.addEventListener("click", () => update(mod(setIndex + 5, setsLength)))
     reset.addEventListener("click", () => update(0));
+    move.addEventListener("click", moveFiles);
 
     document.onkeydown = checkKey;
 }
 
+function moveFiles() {
+    var files = [];
+
+    const keys = Object.keys(selected);
+    for (var i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (selected[key]) files.push(key);
+    }
+
+    console.log(files.sort());
+}
 
 function checkKey(e) {
     e = e || window.event;
@@ -28,9 +42,9 @@ function checkKey(e) {
     } else if (e.keyCode == '39') { // Right Arrow
        forward.click();
     } else if (e.keyCode == '49') { // 1
-        select(0);
-    } else if (e.keyCode == '50') { // 2
         select(1);
+    } else if (e.keyCode == '50') { // 2
+        select(0);
     } else if (e.keyCode == '51') { // 3
         select(2);
     }
@@ -39,21 +53,12 @@ function checkKey(e) {
 const mod = (x, n) => (x % n + n) % n;
 
 function select(i) {
-    section1.classList.remove("selected");
-    section2.classList.remove("selected");
-    section3.classList.remove("selected");
-
-    switch(i) {
-        case 0:
-            section1.classList.add("selected");
-            break;
-        case 1:
-            section2.classList.add("selected");
-            break;
-        case 2:
-            section3.classList.add("selected");
-            break;
+    if (currentSet.length > i) {
+        const file = currentSet[i].SourceFile;
+        selected[file] = !selected[file];
     }
+
+    update(setIndex);
 }
 
 function getInfo(file) {
@@ -79,19 +84,24 @@ function update(i) {
 
     if (setIndex < setsLength) {
         const set = sets[Object.keys(sets)[setIndex]];
+        currentSet = set;
+
         if (set.length > 0) {
             image2.src = set[0].PreviewFile;
             file2.innerText = getInfo(set[0]);
+            if (selected[set[0].SourceFile]) section2.classList.add("selected");
         }
 
         if (set.length > 1) {
             image1.src = set[1].PreviewFile;
             file1.innerText = getInfo(set[1]);
+            if (selected[set[1].SourceFile]) section1.classList.add("selected");
         }
 
         if (set.length > 2) {
             image3.src = set[2].PreviewFile;
             file3.innerText = getInfo(set[2]);
+            if (selected[set[2].SourceFile]) section3.classList.add("selected");
         }
         
         image2.style.display = set.length > 0 ? "inline" : "none";
