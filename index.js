@@ -155,7 +155,11 @@ async function undo(req, res) {
     try {
         const files = fs.readdirSync(dir + 'moved/');
         for (var i = 0; i < files.length; i++) {
-            fs.moveSync(dir + 'moved/' + files[i], dir + '/' + path.basename(files[i]));
+            const file = dir + 'moved/' + files[i];
+            const fileDest = dir + '/' + path.basename(files[i]);
+            
+            console.log('moving', file, 'to', fileDest);
+            fs.moveSync(file, fileDest);
         }
     } catch (err) {
         console.error(err);
@@ -163,6 +167,6 @@ async function undo(req, res) {
     
     extractPreviews();
     sets = await getMetaData();
-    
+
     res.sendStatus(200);
 }
