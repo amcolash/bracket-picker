@@ -1,0 +1,27 @@
+{
+  "name": "bracket-picker",
+  "version": "1.0.0",
+  "description": "Sift through bracketed raw photos to chose the best ones",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amcolash/bracket-picker.git"
+  },
+  "author": "Andrew McOlash",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amcolash/bracket-picker/issues"
+  },
+  "homepage": "https://github.com/amcolash/bracket-picker#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "fs-extra": "^7.0.1",
+    "node-exiftool": "^2.3.0"
+  }
+}
