@@ -13,13 +13,15 @@ const PORT = 9000;
 const app = express();
 app.use(express.json());
 
+var sets = {};
+
 main();
 
 async function main() {
     checkUsage();
 
     //extractPreviews();
-    const sets = await getMetaData();
+    sets = await getMetaData();
 
     app.listen(PORT);
     console.log(`Running on port ${PORT}`);
@@ -122,23 +124,37 @@ function generateSets(data) {
     return sets;
 }
 
-function move(req, res) {
+async function move(req, res) {
     const files = req.body.files;
     
-    fs.readdir(dir, function(err, items) {
-        if (err) {
-            console.error(err);
-            res.sendStatus(500);
-            return;
-        }
+    // fs.readdirSync(dir, function(err, items) {
+    //     if (err) {
+    //         console.error(err);
+    //         res.sendStatus(500);
+    //         return;
+    //     }
         
-        const moved = [];
-        for (var i = 0; i < items.length; i++) {
-            const file = dir + path.basename(items[i]);
-            if (files.indexOf(file) === -1) moved.push(file);
-        }
+    //     for (var i = 0; i < items.length; i++) {
+    //         const file = dir + path.basename(items[i]);
+    //         if (files.indexOf(file) === -1) moved.push(file);
+    //     }
+    // });
 
-        console.log(moved);
-        res.sendStatus(200);
-    });
+    const dest = dir + 'moved/';
+    fs.mkdirpSync(dest);
+
+    for (var i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileDest = dest + path.basename(file);
+        console.log('moving', file, 'to', fileDest);
+
+        try {
+            fs.moveSync(file, fileDest);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    
+    sets = await getMetaData();
+    res.sendStatus(200);
 }

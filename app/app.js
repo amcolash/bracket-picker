@@ -7,13 +7,7 @@ var currentSet = [];
 const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
-    axios.get('/data').then(data => {
-        sets = data.data;
-        setsLength = Object.keys(sets).length;
-        update(mod(setIndex, setsLength));
-    }).catch((err) => {
-        console.error(err);
-    });
+    getData();
 
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
     forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)))
@@ -47,6 +41,16 @@ function checkKey(e) {
     } else if (e.keyCode == '51') { // 3
         select(2);
     }
+}
+
+function getData() {
+    axios.get('/data').then(data => {
+        sets = data.data;
+        setsLength = Object.keys(sets).length;
+        update(mod(setIndex, setsLength));
+    }).catch((err) => {
+        console.error(err);
+    });
 }
 
 function select(i) {
@@ -108,6 +112,8 @@ function update(i) {
 }
 
 function moveFiles() {
+    move.disabled = true;
+    loader.style.display = "inline-block";
     var files = [];
 
     const keys = Object.keys(selected);
@@ -118,7 +124,12 @@ function moveFiles() {
 
     axios.post('/move', { files: files }).then(data => {
         console.log(data);
+        move.disabled = false;
+        loader.style.display = "none";
+        getData();
     }).catch((err) => {
+        move.disabled = false;
         console.error(err);
+        loader.style.display = "none";
     });
 }
