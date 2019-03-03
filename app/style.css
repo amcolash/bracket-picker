@@ -4,6 +4,10 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.selected img {
+    border-color: red;
+}
+
 img {
     max-width: 100%;
     max-height: calc(85vh);

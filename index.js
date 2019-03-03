@@ -19,7 +19,7 @@ async function main() {
     // Get supplied directory
     const dir = process.argv[2];
 
-    extractPreviews(dir);
+    //extractPreviews(dir);
     const sets = await getMetaData(dir);
 
     app.listen(PORT);
