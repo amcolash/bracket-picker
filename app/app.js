@@ -4,40 +4,39 @@ var setsLength = 0;
 var selected = {};
 var currentSet = [];
 
+const mod = (x, n) => (x % n + n) % n;
+
 window.onload = () => {
     axios.get('/data').then(data => {
         sets = data.data;
         setsLength = Object.keys(sets).length;
         update(mod(setIndex, setsLength));
+    }).catch((err) => {
+        console.error(err);
     });
 
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
     forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)))
     backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)))
     forwardLarge.addEventListener("click", () => update(mod(setIndex + 5, setsLength)))
+
     reset.addEventListener("click", () => update(0));
     move.addEventListener("click", moveFiles);
 
+    image1.addEventListener("click", () => select(1));
+    image2.addEventListener("click", () => select(0));
+    image3.addEventListener("click", () => select(2));
+
     document.onkeydown = checkKey;
-}
-
-function moveFiles() {
-    var files = [];
-
-    const keys = Object.keys(selected);
-    for (var i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        if (selected[key]) files.push(key);
-    }
-
-    console.log(files.sort());
 }
 
 function checkKey(e) {
     e = e || window.event;
 
     // Call click function to use the same logic as the buttons
-    if (e.keyCode == '37') { // Left Arrow
+    if (e.keyCode == '13' && e.ctrlKey) { // Enter
+        moveFiles();
+    } else if (e.keyCode == '37') { // Left Arrow
        back.click();
     } else if (e.keyCode == '39') { // Right Arrow
        forward.click();
@@ -49,8 +48,6 @@ function checkKey(e) {
         select(2);
     }
 }
-
-const mod = (x, n) => (x % n + n) % n;
 
 function select(i) {
     if (currentSet.length > i) {
@@ -68,7 +65,7 @@ function getInfo(file) {
 function update(i) {
     setIndex = i;
 
-    stats.innerText = "Index: " + setIndex;
+    stats.innerText = "Set: " + setIndex + " / " + setsLength;
 
     image1.src = "";
     image2.src = "";
@@ -108,4 +105,20 @@ function update(i) {
         image1.style.display = set.length > 1 ? "inline" : "none";
         image3.style.display = set.length > 2 ? "inline" : "none";
     }
+}
+
+function moveFiles() {
+    var files = [];
+
+    const keys = Object.keys(selected);
+    for (var i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (selected[key]) files.push(key);
+    }
+
+    axios.post('/move', { files: files }).then(data => {
+        console.log(data);
+    }).catch((err) => {
+        console.error(err);
+    });
 }

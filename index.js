@@ -7,20 +7,19 @@ const exiftool = require('node-exiftool');
 const ep = new exiftool.ExiftoolProcess();
 
 const tmpDir = '/tmp/bracket-picker/';
+const dir = process.argv[2];
 
 const PORT = 9000;
 const app = express();
+app.use(express.json());
 
 main();
 
 async function main() {
     checkUsage();
 
-    // Get supplied directory
-    const dir = process.argv[2];
-
-    //extractPreviews(dir);
-    const sets = await getMetaData(dir);
+    //extractPreviews();
+    const sets = await getMetaData();
 
     app.listen(PORT);
     console.log(`Running on port ${PORT}`);
@@ -28,6 +27,7 @@ async function main() {
     app.use('/', express.static(__dirname + '/app'));
     app.use('/previews', express.static(tmpDir));
     app.get('/data', (req, res) => res.send(sets));
+    app.post('/move', (req, res) => move(req, res));
 }
 
 function checkUsage() {
@@ -38,7 +38,7 @@ function checkUsage() {
     }
 }
 
-function extractPreviews(dir) {
+function extractPreviews() {
     console.log('Cleaning tmp files');
     fs.removeSync(tmpDir);
     fs.mkdirSync(tmpDir);
@@ -68,7 +68,7 @@ function runCommand(command) {
     });
 }
 
-function getMetaData(dir) {
+function getMetaData() {
     console.log('Getting meta data');
     return new Promise(resolve => {
         ep
@@ -100,7 +100,7 @@ function generateSets(data) {
     }
 
     for (i = 0; i < files.length; i++) {
-        var fileList = [files[i]];
+        const fileList = [files[i]];
         sets[files[i].SourceFile] = fileList;
 
         // reset cycle
@@ -120,4 +120,25 @@ function generateSets(data) {
     }
 
     return sets;
+}
+
+function move(req, res) {
+    const files = req.body.files;
+    
+    fs.readdir(dir, function(err, items) {
+        if (err) {
+            console.error(err);
+            res.sendStatus(500);
+            return;
+        }
+        
+        const moved = [];
+        for (var i = 0; i < items.length; i++) {
+            const file = dir + path.basename(items[i]);
+            if (files.indexOf(file) === -1) moved.push(file);
+        }
+
+        console.log(moved);
+        res.sendStatus(200);
+    });
 }
