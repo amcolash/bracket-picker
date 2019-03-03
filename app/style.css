@@ -6,6 +6,8 @@ body {
 
 img {
     max-width: 100%;
+    max-height: calc(85vh);
+    border: 1px solid white;
     align-self: center;
 }
 
@@ -18,13 +20,13 @@ img {
 }
 
 .images {
-    height: calc(80vh);
+    height: calc(90vh);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .section {
-    padding: 0.25em;
+    padding: 0.25em 0.35em;
     text-align: center;
 }

@@ -1,4 +1,4 @@
-var setIndex = 49;
+var setIndex = 0;
 var sets = [];
 var setsLength = 0;
 
@@ -24,10 +24,11 @@ function update(i) {
     stats.innerText = "Index: " + setIndex;
 
     image1.src = "";
-    file1.innerText = "";
     image2.src = "";
-    file2.innerText = "";
     image3.src = "";
+
+    file1.innerText = "";
+    file2.innerText = "";
     file3.innerText = "";
 
     if (setIndex < setsLength) {
@@ -47,5 +48,9 @@ function update(i) {
             image3.src = set[2].PreviewFile;
             file3.innerText = set[2].FileName;
         }
+        
+        image2.style.display = set.length > 0 ? "inline" : "none";
+        image1.style.display = set.length > 1 ? "inline" : "none";
+        image3.style.display = set.length > 2 ? "inline" : "none";
     }
 }
