@@ -146,12 +146,13 @@ function generateSets(data) {
         sets[files[i].SourceFile] = fileList;
 
         // reset cycle
-        if (files[i].BracketValue == 0) {
-            
-            if (i + 1 < files.length && files[i + 1].BracketValue != 0) {
+        if (files[i].AEBBracketValue == 0) {
+            const fileNumber = getFileNumber(files[i]);
+
+            if (i + 1 < files.length && files[i + 1].AEBBracketValue != 0 && getFileNumber(files[i + 1]) === fileNumber + 1) {
                 fileList.push(files[i + 1]);
 
-                if (i + 2 < files.length && files[i + 2].BracketValue != 0) {
+                if (i + 2 < files.length && files[i + 2].AEBBracketValue != 0 && getFileNumber(files[i + 2]) === fileNumber + 2) {
                     fileList.push(files[i + 2]);
                     i++;
                 }
@@ -162,6 +163,10 @@ function generateSets(data) {
     }
 
     return sets;
+}
+
+function getFileNumber(file) {
+    return path.basename(file.SourceFile, path.extname(file.SourceFile)).replace(/\D+/g, '');
 }
 
 async function move(req, res) {
