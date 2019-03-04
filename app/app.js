@@ -11,13 +11,14 @@ const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
     feather.replace();
+    overlay.style.display = "none";
 
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
     forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)));
     backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)));
     forwardLarge.addEventListener("click", () => update(mod(setIndex + 5, setsLength)));
     
-    reset.addEventListener("click", () => update(0));
+    // reset.addEventListener("click", () => update(0));
     move.addEventListener("click", moveFiles);
     undo.addEventListener("click", undoMove);
     
@@ -47,7 +48,12 @@ function checkKey(e) {
     if (e.keyCode == '13' && e.ctrlKey) { // Enter + Ctrl
         moveFiles();
     } else if (e.keyCode == '37' && e.ctrlKey) { // Left Arrow + Ctrl
-        backLarge.click();
+        if (overlay.style.display !== "none") {
+            back.click();
+            preview(1);
+        } else {
+            backLarge.click();
+        }
     } else if (e.keyCode == '37') { // Left Arrow
         if (overlay.style.display !== "none") {
             preview(previewIndex - 1);
@@ -55,7 +61,12 @@ function checkKey(e) {
             back.click();
         }
     } else if (e.keyCode == '39' && e.ctrlKey) { // Right Arrow + Ctrl
-        forwardLarge.click();
+        if (overlay.style.display !== "none") {
+            forward.click();
+            preview(1);
+        } else {
+            forwardLarge.click();
+        }
     } else if (e.keyCode == '39') { // Right Arrow
         if (overlay.style.display !== "none") {
             preview(previewIndex + 1);
@@ -64,12 +75,32 @@ function checkKey(e) {
         }
     } else if (e.keyCode == '49') { // 1
         select(1);
+        if (overlay.style.display !== "none" && previewIndex === 1) preview(1);
     } else if (e.keyCode == '50') { // 2
         select(0);
+        if (overlay.style.display !== "none" && previewIndex === 0) preview(0);
     } else if (e.keyCode == '51') { // 3
         select(2);
+        if (overlay.style.display !== "none" && previewIndex === 2) preview(2);
     } else if (e.keyCode == '27') { // esc
         overlay.style.display = "none";
+    } else if (e.keyCode == '32' || e.keyCode == '82') { // space
+        if (overlay.style.display !== "none") {
+            select(previewIndex);
+            preview(previewIndex);
+        }
+    } else if (e.keyCode == '81') { // q
+        preview(1);
+    } else if (e.keyCode == '87') { // w
+        preview(0);
+    } else if (e.keyCode == '69') { // e
+        preview(2);
+    } else if (e.keyCode == '90') { // z
+        if (overlay.style.display !== "none") {
+            overlay.style.display = "none";
+        } else {
+            preview(1);
+        }
     }
 }
 
@@ -110,6 +141,8 @@ function preview(i) {
     previewIndex = mod(i, currentSet.length);
     overlay.style.display = "flex";
     previewImg.src = currentSet[previewIndex].PreviewFile;
+
+    previewImg.style.boxShadow = selected[currentSet[previewIndex].SourceFile] ? "0 0 4em rgba(255, 0, 0, 0.75)" : "";
 }
 
 function update(i) {
@@ -173,9 +206,11 @@ function getSelectedFiles() {
 }
 
 function moveFiles() {
+    const files = getSelectedFiles();
+    if (!confirm("Are you sure you want to move " + files.length + " files?")) return;
+
     move.disabled = true;
     loader.style.display = "inline-block";
-    const files = getSelectedFiles();
     selected = {};
 
     axios.post('/move', { files: files }).then(data => {
@@ -192,6 +227,8 @@ function moveFiles() {
 }
 
 function undoMove() {
+    if (!confirm("Are you sure you want to undo ALL changes?")) return;
+
     undo.disabled = true;
     loader.style.display = "inline-block";
 
