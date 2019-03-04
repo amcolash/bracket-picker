@@ -152,7 +152,7 @@ function preview(i) {
 function update(i) {
     setIndex = i;
 
-    stats.innerText = "Set: " + setIndex + " / " + setsLength;
+    stats.innerText = "Set: " + setIndex + " / " + (setsLength - 1);
 
     section1.style.display = "none";
     section2.style.display = "none";
@@ -163,9 +163,9 @@ function update(i) {
     image3.src = "";
 
     // 4 new lines so that things don't get funky with loading moving around layout
-    file1.innerText = "\n\n\n\n";
-    file2.innerText = "\n\n\n\n";
-    file3.innerText = "\n\n\n\n";
+    file1.innerText = "";
+    file2.innerText = "";
+    file3.innerText = "";
 
     section1.classList.remove("selected");
     section2.classList.remove("selected");
