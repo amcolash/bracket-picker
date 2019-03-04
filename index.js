@@ -37,7 +37,7 @@ async function main() {
     }
 
     extractPreviews();
-    sets = await getMetaData();
+    sets = await getMetadata();
 
     app.listen(PORT);
     console.log(`Running on port ${PORT}`);
@@ -115,14 +115,15 @@ function runCommand(command) {
     });
 }
 
-function getMetaData() {
-    console.log('Getting meta data');
+function getMetadata() {
+    console.log('Getting metadata');
     return new Promise(resolve => {
         ep
             .open()
             // read directory
             .then(() => ep.readMetadata(dir, ['-File:all']))
-            .then(data => resolve(generateSets(data)), data => { console.error(data); resolve([]); })
+            .then(data => resolve(generateSets(data)), error => { console.error(error); resolve([]); })
+            .then(() => console.log('Finished getting metadata'))
             .then(() => ep.close())
             .catch(console.error);
     });
@@ -215,7 +216,7 @@ async function move(req, res) {
         }
     }
     
-    sets = await getMetaData();
+    sets = await getMetadata();
     res.sendStatus(200);
 }
 
@@ -234,7 +235,7 @@ async function undo(req, res) {
     }
     
     extractPreviews();
-    sets = await getMetaData();
+    sets = await getMetadata();
 
     res.sendStatus(200);
 }
