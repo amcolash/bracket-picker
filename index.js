@@ -6,14 +6,14 @@ const path = require('path');
 const exiftool = require('node-exiftool');
 const ep = new exiftool.ExiftoolProcess();
 
-const dir = process.argv[2];
-const tmpDir = '/tmp/bracket-picker/' + path.basename(dir) + '/';
+const baseTmpDir = '/tmp/bracket-picker/';
+var dir;
+var tmpDir;
 
 const PORT = 9000;
 const app = express();
 app.use(express.json());
 
-const EXTRACT = false;
 var sets = {};
 
 main();
@@ -21,7 +21,17 @@ main();
 async function main() {
     checkUsage();
 
-    extractPreviews(EXTRACT);
+    if (false) fs.rmdirSync(baseTmpDir);
+
+    if (process.argv[2] === "-b") {
+        batchProcess();
+        return;
+    }
+
+    dir = process.argv[2];
+    tmpDir = baseTmpDir + path.basename(dir) + '/';
+
+    extractPreviews();
     sets = await getMetaData();
 
     app.listen(PORT);
@@ -36,13 +46,21 @@ async function main() {
 
 function checkUsage() {
     // Check usage
-    if (process.argv.length !== 3) {
-        console.error("Error: Usage is '" + __filename + " raw_dir'");
+    if (process.argv.length < 3) {
+        console.error("Error: Usage is '" + path.basename(__filename) + " [raw_dir]' or '" + path.basename(__filename) + " -b [raw_dirs...]'");
         process.exit(1);
     }
 }
 
-function extractPreviews(force) {
+function batchProcess() {
+    for (var i = 3; i < process.argv.length; i++) {
+        dir = process.argv[i];
+        tmpDir = baseTmpDir + path.basename(dir) + '/';
+        extractPreviews();
+    }
+}
+
+function extractPreviews() {
     var modified = false;
 
     const files = fs.readdirSync(dir);
@@ -56,7 +74,7 @@ function extractPreviews(force) {
         }
     }
 
-    if (modified || force) {
+    if (modified) {
         console.log('Cleaning tmp files');
         fs.removeSync(tmpDir);
         fs.mkdirpSync(tmpDir);
@@ -76,7 +94,7 @@ function extractPreviews(force) {
         // Resizing doesn't seem to have an impact on image load but causes long delays on boot
         // runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 2000 --rotate');
     } else {
-        console.log("Files up to date, not re-extracting");
+        console.log("Files up to date in " + tmpDir + ", not re-extracting");
     }
 }
 
