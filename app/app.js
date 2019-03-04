@@ -99,7 +99,7 @@ function checkKey(e) {
         }
     } else if (e.keyCode == '191') { // "/"
         forward.click();
-        preview(1);
+        preview(0);
     } else if (e.keyCode == '190') { // "."
         back.click();
         preview(0);
