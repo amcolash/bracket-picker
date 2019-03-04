@@ -2,6 +2,7 @@ var setIndex = 0;
 var previewIndex = 0;
 var sets = [];
 var setsLength = 0;
+var totalSize = 0;
 var selected = {};
 var currentSet = [];
 
@@ -111,7 +112,15 @@ function checkKey(e) {
 function getData() {
     axios.get('/data').then(data => {
         sets = data.data;
-        setsLength = Object.keys(sets).length;
+
+        const keys = Object.keys(sets);
+        setsLength = keys.length;
+        
+        totalSize = 0;
+        for (var i = 0; i < keys.length; i++) {
+            totalSize += sets[keys[i]].length;
+        }
+
         update(mod(setIndex, setsLength));
     }).catch((err) => {
         console.error(err);
@@ -138,7 +147,8 @@ function select(i) {
 }
 
 function getInfo(file) {
-    return file.FileName + "\nF " + file.Aperture + "\n ISO " + file.ISO + "\n Shutter Speed " + file.ShutterSpeed;
+    return file.FileName + "\nAperture F" + file.Aperture + "\nISO " + file.ISO + "\nShutter Speed " + file.ShutterSpeed +
+        "\nFocal Length " + file.FocalLength + "\nBracket Value " + file.AEBBracketValue;
 }
 
 function preview(i) {
@@ -152,7 +162,7 @@ function preview(i) {
 function update(i) {
     setIndex = i;
 
-    stats.innerText = "Set: " + setIndex + " / " + (setsLength - 1);
+    stats.innerText = "Set: " + (setIndex + 1) + " / " + setsLength + ", Total Files: " + totalSize;
 
     section1.style.display = "none";
     section2.style.display = "none";
@@ -219,14 +229,12 @@ function moveFiles() {
     selected = {};
 
     axios.post('/move', { files: files }).then(data => {
-        move.disabled = false;
         move.innerHTML = "Move Files";
         undo.disabled = false;
         loader.style.display = "none";
         getData();
     }).catch((err) => {
         console.error(err);
-        move.disabled = false;
         move.innerHTML = "Move Files";
         undo.disabled = false;
         loader.style.display = "none";

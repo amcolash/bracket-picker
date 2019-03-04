@@ -25,7 +25,6 @@ body {
 }
 
 .images {
-    height: calc(94vh);
     display: flex;
     align-items: center;
 }
@@ -33,11 +32,12 @@ body {
 .image {
     position: relative;
     display: inline-block;
+    padding: 0.5em;
 }
 
 .image img {
     max-width: 100%;
-    max-height: calc(85vh);
+    max-height: calc(80vh);
     border: 1px solid white;
     align-self: center;
 }
