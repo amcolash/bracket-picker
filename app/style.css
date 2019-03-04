@@ -32,7 +32,7 @@ body {
 .image {
     position: relative;
     display: inline-block;
-    padding: 0.5em;
+    margin: 0.5em;
 }
 
 .image img {
