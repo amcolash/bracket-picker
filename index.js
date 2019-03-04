@@ -21,7 +21,7 @@ main();
 async function main() {
     checkUsage();
 
-    if (EXTRACT) extractPreviews();
+    extractPreviews(EXTRACT);
     sets = await getMetaData();
 
     app.listen(PORT);
@@ -42,25 +42,42 @@ function checkUsage() {
     }
 }
 
-function extractPreviews() {
-    console.log('Cleaning tmp files');
-    fs.removeSync(tmpDir);
-    fs.mkdirSync(tmpDir);
+function extractPreviews(force) {
+    var modified = false;
+
+    const files = fs.readdirSync(dir);
+    for (var i = 0; i < files.length; i++) {
+        const fileNoExt = path.basename(files[i], path.extname(files[i]));
+        const file = tmpDir + fileNoExt + '.jpg';
+        if (fs.statSync(dir + files[i]).isFile() && !fs.existsSync(file)) {
+            console.log(file + ' does not exist');
+            modified = true;
+            break;
+        }
+    }
+
+    if (modified || force) {
+        console.log('Cleaning tmp files');
+        fs.removeSync(tmpDir);
+        fs.mkdirSync(tmpDir);
+        
+        // Extract images to tmpDir
+        console.log('Extracting raw previews');
+        runCommand('exiftool -b -previewimage -w ' + tmpDir + '%f.jpg --ext jpg ' + dir);
     
-    // Extract images to tmpDir
-    console.log('Extracting raw previews');
-    runCommand('exiftool -b -previewimage -w ' + tmpDir + '%f.jpg --ext jpg ' + dir);
-
-    // Write tags to extracted images
-    console.log('Writing exif data to preview files');
-    runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + tmpDir + '%f.jpg -overwrite_original --ext jpg ' + dir);
-
-    // Fix orientation of vertical images
-    console.log('Auto rotating preview images');
-    runCommand('exifautotran ' + tmpDir + '*.jpg');
-
-    // Resizing doesn't seem to have an impact on image load but causes long delays on boot
-    // runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 2000 --rotate');
+        // Write tags to extracted images
+        console.log('Writing exif data to preview files');
+        runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + tmpDir + '%f.jpg -overwrite_original --ext jpg ' + dir);
+    
+        // Fix orientation of vertical images
+        console.log('Auto rotating preview images');
+        runCommand('exifautotran ' + tmpDir + '*.jpg');
+    
+        // Resizing doesn't seem to have an impact on image load but causes long delays on boot
+        // runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 2000 --rotate');
+    } else {
+        console.log("Files up to date, not re-extracting");
+    }
 }
 
 function runCommand(command) {
@@ -157,7 +174,7 @@ async function undo(req, res) {
         for (var i = 0; i < files.length; i++) {
             const file = dir + 'moved/' + files[i];
             const fileDest = dir + '/' + path.basename(files[i]);
-            
+
             console.log('moving', file, 'to', fileDest);
             fs.moveSync(file, fileDest);
         }
