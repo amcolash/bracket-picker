@@ -1,4 +1,5 @@
 var setIndex = 0;
+var previewIndex = 0;
 var sets = [];
 var setsLength = 0;
 var selected = {};
@@ -9,6 +10,8 @@ var currentSet = [];
 const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
+    feather.replace();
+
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
     forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)));
     backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)));
@@ -22,13 +25,18 @@ window.onload = () => {
     image2.addEventListener("click", () => select(0));
     image3.addEventListener("click", () => select(2));
     
+    preview1.addEventListener("click", () => preview(1));
+    preview2.addEventListener("click", () => preview(0));
+    preview3.addEventListener("click", () => preview(2));
+
+    overlay.addEventListener("click", () => overlay.style.display = "none");
+
     image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[0]); section2.style.display = "inline"; });
     image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[1]); section1.style.display = "inline"; });
     image3.addEventListener("load", () => { file3.innerText = getInfo(currentSet[2]); section3.style.display = "inline"; });
     
     document.onkeydown = checkKey;
 
-    feather.replace();
     getData();
 }
 
@@ -41,17 +49,27 @@ function checkKey(e) {
     } else if (e.keyCode == '37' && e.ctrlKey) { // Left Arrow + Ctrl
         backLarge.click();
     } else if (e.keyCode == '37') { // Left Arrow
-       back.click();
+        if (overlay.style.display !== "none") {
+            preview(previewIndex - 1);
+        } else {
+            back.click();
+        }
     } else if (e.keyCode == '39' && e.ctrlKey) { // Right Arrow + Ctrl
         forwardLarge.click();
     } else if (e.keyCode == '39') { // Right Arrow
-       forward.click();
+        if (overlay.style.display !== "none") {
+            preview(previewIndex + 1);
+        } else {
+            forward.click();
+        }
     } else if (e.keyCode == '49') { // 1
         select(1);
     } else if (e.keyCode == '50') { // 2
         select(0);
     } else if (e.keyCode == '51') { // 3
         select(2);
+    } else if (e.keyCode == '27') { // esc
+        overlay.style.display = "none";
     }
 }
 
@@ -86,6 +104,12 @@ function select(i) {
 
 function getInfo(file) {
     return file.FileName + "\nF " + file.Aperture + "\n ISO " + file.ISO + "\n Shutter Speed " + file.ShutterSpeed;
+}
+
+function preview(i) {
+    previewIndex = mod(i, currentSet.length);
+    overlay.style.display = "flex";
+    previewImg.src = currentSet[previewIndex].PreviewFile;
 }
 
 function update(i) {
