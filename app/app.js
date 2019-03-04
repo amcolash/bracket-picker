@@ -5,8 +5,6 @@ var setsLength = 0;
 var selected = {};
 var currentSet = [];
 
-// TODO Hover zoom, speed up metadata?, smoother loading display, spinner sizing, resize images?
-
 const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
@@ -84,7 +82,7 @@ function checkKey(e) {
         if (overlay.style.display !== "none" && previewIndex === 2) preview(2);
     } else if (e.keyCode == '27') { // esc
         overlay.style.display = "none";
-    } else if (e.keyCode == '32' || e.keyCode == '82') { // space
+    } else if (e.keyCode == '32' || e.keyCode == '82' || e.keyCode == '16') { // space, r, right shift
         if (overlay.style.display !== "none") {
             select(previewIndex);
             preview(previewIndex);
@@ -101,7 +99,13 @@ function checkKey(e) {
         } else {
             preview(1);
         }
-    }
+    } else if (e.keyCode == '191') { // "/"
+        forward.click();
+        preview(1);
+    } else if (e.keyCode == '190') { // "."
+        back.click();
+        preview(1);
+    } 
 }
 
 function getData() {
@@ -210,18 +214,21 @@ function moveFiles() {
     if (!confirm("Are you sure you want to move " + files.length + " files?")) return;
 
     move.disabled = true;
+    undo.disabled = true;
     loader.style.display = "inline-block";
     selected = {};
 
     axios.post('/move', { files: files }).then(data => {
         move.disabled = false;
         move.innerHTML = "Move Files";
+        undo.disabled = false;
         loader.style.display = "none";
         getData();
     }).catch((err) => {
         console.error(err);
         move.disabled = false;
         move.innerHTML = "Move Files";
+        undo.disabled = false;
         loader.style.display = "none";
     });
 }
@@ -230,15 +237,18 @@ function undoMove() {
     if (!confirm("Are you sure you want to undo ALL changes?")) return;
 
     undo.disabled = true;
+    move.disabled = true;
     loader.style.display = "inline-block";
 
     axios.post('/undo').then(data => {
         undo.disabled = false;
+        move.disabled = false;
         loader.style.display = "none";
         getData();
     }).catch((err) => {
         console.error(err);
         undo.disabled = false;
+        move.disabled = false;
         loader.style.display = "none";
     });
 }
