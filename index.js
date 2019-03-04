@@ -31,6 +31,11 @@ async function main() {
     dir = process.argv[2];
     tmpDir = baseTmpDir + path.basename(dir) + '/';
 
+    if (!fs.existsSync(dir)) {
+        console.error(dir + " does not exist");
+        process.exit(1);
+    }
+
     extractPreviews();
     sets = await getMetaData();
 
@@ -142,31 +147,54 @@ function generateSets(data) {
     }
 
     for (i = 0; i < files.length; i++) {
-        const fileList = [files[i]];
+        var fileList = [files[i]];
         sets[files[i].SourceFile] = fileList;
-
+        
         // reset cycle
-        if (files[i].AEBBracketValue == 0) {
+        const bracket = getBracket(files[i]);
+        if (bracket == 0) {
             const fileNumber = getFileNumber(files[i]);
 
-            if (i + 1 < files.length && files[i + 1].AEBBracketValue != 0 && getFileNumber(files[i + 1]) === fileNumber + 1) {
+            var inc = 0;
+            if (i + 1 < files.length &&
+                ((getFileNumber(files[i + 1]) === (fileNumber + 1) && getBracket(files[i + 1]) < bracket) ||
+                (getFileNumber(files[i + 1]) === (fileNumber + 2) && getBracket(files[i + 1]) > bracket)
+            )) {
                 fileList.push(files[i + 1]);
+                inc++;
+            }
 
-                if (i + 2 < files.length && files[i + 2].AEBBracketValue != 0 && getFileNumber(files[i + 2]) === fileNumber + 2) {
-                    fileList.push(files[i + 2]);
-                    i++;
-                }
+            if (i + 2 < files.length && files[i + 2].AEBBracketValue != 0 && getFileNumber(files[i + 2]) === (fileNumber + 2)) {
+                fileList.push(files[i + 2]);
+                inc++;
+            }
 
+            i += inc;
+        } else {
+            const fileNumber = getFileNumber(files[i]);
+
+            if (i + 1 < files.length && getBracket(files[i]) < getBracket(files[i + 1]) && getFileNumber(files[i + 1]) === (fileNumber + 1)) {
+                fileList.push(files[i + 1]);
                 i++;
             }
         }
+
+        fileList = fileList.sort((a, b) => {
+            var x = eval(a.AEBBracketValue);
+            var y = eval(b.AEBBracketValue);
+            return Math.sign(x - y);
+        });
     }
 
     return sets;
 }
 
+function getBracket(file) {
+    return eval(file.AEBBracketValue);
+}
+
 function getFileNumber(file) {
-    return path.basename(file.SourceFile, path.extname(file.SourceFile)).replace(/\D+/g, '');
+    return Number.parseInt(path.basename(file.SourceFile, path.extname(file.SourceFile)).replace(/\D+/g, ''));
 }
 
 async function move(req, res) {
