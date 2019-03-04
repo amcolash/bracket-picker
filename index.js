@@ -6,8 +6,8 @@ const path = require('path');
 const exiftool = require('node-exiftool');
 const ep = new exiftool.ExiftoolProcess();
 
-const tmpDir = '/tmp/bracket-picker/';
 const dir = process.argv[2];
+const tmpDir = '/tmp/bracket-picker/' + path.basename(dir) + '/';
 
 const PORT = 9000;
 const app = express();
@@ -59,7 +59,7 @@ function extractPreviews(force) {
     if (modified || force) {
         console.log('Cleaning tmp files');
         fs.removeSync(tmpDir);
-        fs.mkdirSync(tmpDir);
+        fs.mkdirpSync(tmpDir);
         
         // Extract images to tmpDir
         console.log('Extracting raw previews');
