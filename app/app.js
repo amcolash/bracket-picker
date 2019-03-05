@@ -29,13 +29,34 @@ window.onload = () => {
     preview2.addEventListener("click", () => preview(1));
     preview3.addEventListener("click", () => preview(2));
 
-    overlay.addEventListener("click", () => overlay.style.display = "none");
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.style.display = "none";
+    });
 
     image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.style.display = "inline"; });
     image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.style.display = "inline"; });
     image3.addEventListener("load", () => { file3.innerText = getInfo(currentSet[2]); section3.style.display = "inline"; });
     
     document.onkeydown = checkKey;
+
+    new Hammer(images).on('swipeleft', () => forward.click());
+    new Hammer(images).on('swiperight', () => back.click());
+
+    new Hammer(overlay).on('swipeleft', () => preview(previewIndex + 1));
+    new Hammer(overlay, { recognizers: [[Hammer.Swipe, { pointers: 2 }]]}).on('swipeleft', () => forward.click());
+
+    new Hammer(overlay).on('swiperight', () => preview(previewIndex - 1));
+    new Hammer(overlay, { recognizers: [[Hammer.Swipe, { pointers: 2 }]]}).on('swiperight', () => back.click());
+    
+    new Hammer(previewImg).on('tap', () => select(previewIndex));
+
+    const pinchOut = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 1.25 } ]] };
+    const pinchIn = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 0.5 } ]] };
+
+    new Hammer(image1, pinchOut).on('pinchout', () => preview(0));
+    new Hammer(image2, pinchOut).on('pinchout', () => preview(1));
+    new Hammer(image3, pinchOut).on('pinchout', () => preview(2));
+    new Hammer(overlay, pinchIn).on('pinchin', () => overlay.style.display = "none");
 
     getData();
 }
@@ -49,7 +70,6 @@ function checkKey(e) {
     } else if (e.keyCode == '37' && e.ctrlKey) { // Left Arrow + Ctrl
         if (overlay.style.display !== "none") {
             back.click();
-            preview(0);
         } else {
             backLarge.click();
         }
@@ -62,7 +82,6 @@ function checkKey(e) {
     } else if (e.keyCode == '39' && e.ctrlKey) { // Right Arrow + Ctrl
         if (overlay.style.display !== "none") {
             forward.click();
-            preview(0);
         } else {
             forwardLarge.click();
         }
@@ -80,10 +99,9 @@ function checkKey(e) {
         if (overlay.style.display === "none") select(2);
     } else if (e.keyCode == '27') { // esc
         overlay.style.display = "none";
-    } else if (e.keyCode == '32' || e.keyCode == '82' || e.keyCode == '16') { // space, r, right shift
+    } else if (e.keyCode == '32' || e.keyCode == '82' || e.keyCode == '16') { // space, r, shift
         if (overlay.style.display !== "none") {
             select(previewIndex);
-            preview(previewIndex);
         }
     } else if (e.keyCode == '81') { // q
         preview(0);
@@ -99,11 +117,9 @@ function checkKey(e) {
         }
     } else if (e.keyCode == '191') { // "/"
         forward.click();
-        preview(0);
     } else if (e.keyCode == '190') { // "."
         back.click();
-        preview(0);
-    } 
+    }
 }
 
 function getData() {
@@ -141,6 +157,8 @@ function select(i) {
     if (currentSet.length > 0 && selected[currentSet[0].SourceFile]) section1.classList.add("selected");
     if (currentSet.length > 1 && selected[currentSet[1].SourceFile]) section2.classList.add("selected");
     if (currentSet.length > 2 && selected[currentSet[2].SourceFile]) section3.classList.add("selected");
+
+    if (overlay.style.display !== "none" && previewIndex === i) preview(previewIndex);
 }
 
 function getInfo(file) {
@@ -202,6 +220,8 @@ function update(i) {
             if (selected[set[2].SourceFile]) section3.classList.add("selected");
         }
     }
+
+    if (overlay.style.display !== "none") preview(0);
 }
 
 function getSelectedFiles() {

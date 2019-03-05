@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app">
+    <div id="app">
         <div id="controls">
             <span id="stats"></span>
             <button id="backLarge">&lt;&lt;</button>
@@ -21,7 +21,7 @@
             <button id="undo">Undo</button>
             <div class="lds-dual-ring" id="loader"></div>
         </div>
-        <div class="images">
+        <div id="images">
             <div class="section" id="section1"><div class="image"><img id="image1" src=""><i id="preview1" data-feather="search"></i></div><br><span id="file1"></span></div>
             <div class="section" id="section2"><div class="image"><img id="image2" src=""><i id="preview2" data-feather="search"></i></div><br><span id="file2"></span></div>
             <div class="section" id="section3"><div class="image"><img id="image3" src=""><i id="preview3" data-feather="search"></i></div><br><span id="file3"></span></div>
@@ -32,5 +32,6 @@
     <script src="app.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
 </body>
 </html>

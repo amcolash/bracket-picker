@@ -9,7 +9,8 @@ body {
 }
 
 .selected .image img {
-    border-color: red;
+    outline: 2px solid red;
+    outline-offset: -2px;
 }
 
 .selected {
@@ -24,7 +25,7 @@ body {
     padding-right: 0.25em;
 }
 
-.images {
+#images {
     display: flex;
     align-items: center;
     height: calc(94vh);

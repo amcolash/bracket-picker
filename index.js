@@ -29,6 +29,7 @@ async function main() {
     }
 
     dir = process.argv[2];
+    if (dir[dir.length -1] !== "/") dir += "/";
     tmpDir = baseTmpDir + path.basename(dir) + '/';
 
     if (!fs.existsSync(dir)) {
