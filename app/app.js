@@ -146,10 +146,16 @@ function getData() {
 
 function showOverlay() {
     overlay.classList.add("shown");
+    file1.classList.add("invisible");
+    file2.classList.add("invisible");
+    file3.classList.add("invisible");
 }
 
 function hideOverlay() {
     overlay.classList.remove("shown");
+    file1.classList.remove("invisible");
+    file2.classList.remove("invisible");
+    file3.classList.remove("invisible");
 }
 
 function overlayShown() {
@@ -180,6 +186,17 @@ function getInfo(file) {
 }
 
 function preview(i) {
+    if (i < 0) {
+        back.click();
+        preview(currentSet.length - 1);
+        return;
+    }
+
+    if (i > currentSet.length - 1) {
+        forward.click();
+        return;
+    }
+
     previewIndex = mod(i, currentSet.length);
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
@@ -199,6 +216,7 @@ function update(i) {
     setIndex = i;
 
     stats.innerText = "Set: " + (setIndex + 1) + " / " + setsLength + ", Total Files: " + totalSize;
+    pagerNumber.innerHTML = (setIndex + 1) + "/" + setsLength;
 
     section1.classList.add("hidden");
     section2.classList.add("hidden");

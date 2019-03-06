@@ -2,10 +2,15 @@ body {
     background-color: #555;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
 }
 
 .hidden {
     display: none;
+    opacity: 0;
+}
+
+.invisible {
     opacity: 0;
 }
 
@@ -64,6 +69,10 @@ body {
     text-align: center;
 }
 
+.section span {
+    transition: opacity 0.35s;
+}
+
 #overlay {
     position: absolute;
     display: flex;
@@ -87,8 +96,8 @@ body {
 }
 
 #previewImg {
-    max-width: calc(90vw);
-    max-height: calc(90vh);
+    max-width: calc(90vw - 2em);
+    max-height: calc(90vh - 2.5em);
     box-shadow: 0 0 4em rgba(255, 255, 255, 0.35);
     transition: box-shadow 0.35s;
 }
@@ -109,6 +118,7 @@ body {
     align-items: center;
     justify-content: space-between;
     width: calc(97vw);
+    padding-top: 1em;
 }
 
 #rightArrow, #leftArrow {
@@ -117,15 +127,15 @@ body {
 }
 
 .pager {
-    font-size: 2em;
     color: #aaa;
 }
 
-.pager span {
+.pager .dots {
+    font-size: 2em;
     cursor: pointer;
 }
 
-.pager .active {
+.pager .dots .active {
     color: white;
 }
 
