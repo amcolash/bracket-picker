@@ -34,6 +34,9 @@ window.onload = () => {
     pager2.addEventListener("click", (e) => { e.stopPropagation(); preview(1); });
     pager3.addEventListener("click", (e) => { e.stopPropagation(); preview(2); });
 
+    leftArrow.addEventListener("click", (e) => { e.stopPropagation(); preview(previewIndex - 1); });
+    rightArrow.addEventListener("click", (e) => { e.stopPropagation(); preview(previewIndex + 1); });
+
     overlay.addEventListener("click", (e) => { hideOverlay(); });
 
     image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.classList.remove("hidden"); });
