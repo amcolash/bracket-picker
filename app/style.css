@@ -3,6 +3,7 @@ body {
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     overflow: hidden;
+    text-align: center;
 }
 
 .hidden {
@@ -66,7 +67,6 @@ body {
 
 .section {
     padding: 0.25em 0.35em;
-    text-align: center;
 }
 
 .section span {
@@ -79,7 +79,6 @@ body {
     flex-flow: wrap;
     align-items: center;
     justify-content: center;
-    text-align: center;
     top: 0;
     left: 0;
     width: 100%;
@@ -133,9 +132,10 @@ body {
 .pager .dots {
     font-size: 2em;
     cursor: pointer;
+    transition: color 0.25s;
 }
 
-.pager .dots .active {
+.pager .dots.active {
     color: white;
 }
 
