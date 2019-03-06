@@ -11,6 +11,15 @@ const mod = (x, n) => (x % n + n) % n;
 window.onload = () => {
     feather.replace();
 
+    // Disable context menu on touch, but keep for mouse right click
+    window.oncontextmenu = (event) => {
+        if (event.sourceCapabilities.firesTouchEvents) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+   };
+
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
     forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)));
     backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)));
@@ -45,6 +54,10 @@ window.onload = () => {
     
     document.onkeydown = checkKey;
 
+    const pinchOut = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 1.25 } ]] };
+    const pinchIn = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 0.5 } ]] };
+    const press = { recognizers: [[ Hammer.Press, { time: 500 }]]};
+
     new Hammer(images).on('swipeleft', () => forward.click());
     new Hammer(images).on('swiperight', () => back.click());
 
@@ -54,12 +67,14 @@ window.onload = () => {
     new Hammer(overlay).on('swiperight', () => preview(previewIndex - 1));
     new Hammer(overlay, { recognizers: [[Hammer.Swipe, { pointers: 2 }]]}).on('swiperight', () => back.click());
 
-    const pinchOut = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 1.25 } ]] };
-    const pinchIn = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 0.5 } ]] };
-
     new Hammer(image1, pinchOut).on('pinchout', () => preview(0));
     new Hammer(image2, pinchOut).on('pinchout', () => preview(1));
     new Hammer(image3, pinchOut).on('pinchout', () => preview(2));
+    new Hammer(image1, press).on('press', () => preview(0));
+    new Hammer(image2, press).on('press', () => preview(1));
+    new Hammer(image3, press).on('press', () => preview(2));
+
+    new Hammer(overlay, press).on('press', () => hideOverlay());
     new Hammer(overlay, pinchIn).on('pinchin', () => hideOverlay());
 
     getData();
