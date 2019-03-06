@@ -63,26 +63,28 @@ body {
 #overlay {
     position: absolute;
     display: flex;
+    flex-flow: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.65);
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
     pointer-events: none;
+    opacity: 0;
     transition: opacity 0.35s;
 }
 
 #overlay.shown {
-    opacity: 1;
     pointer-events: all;
+    opacity: 1;
 }
 
-#overlay img {
-    max-width: 90%;
-    max-height: 90%;
+#previewImg {
+    max-width: calc(90vw);
+    max-height: calc(90vh);
     box-shadow: 0 0 4em rgba(255, 255, 255, 0.35);
 }
 
@@ -91,6 +93,19 @@ body {
     position: absolute;
     top: 0.75em;
     right: 0.75em;
+}
+
+.pager {
+    font-size: 2em;
+    color: #aaa;
+}
+
+.pager span {
+    cursor: pointer;
+}
+
+.pager .active {
+    color: white;
 }
 
 #loader {

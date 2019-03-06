@@ -30,7 +30,11 @@ window.onload = () => {
     preview2.addEventListener("click", () => preview(1));
     preview3.addEventListener("click", () => preview(2));
 
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) hideOverlay() });
+    pager1.addEventListener("click", (e) => { e.stopPropagation(); preview(0); });
+    pager2.addEventListener("click", (e) => { e.stopPropagation(); preview(1); });
+    pager3.addEventListener("click", (e) => { e.stopPropagation(); preview(2); });
+
+    overlay.addEventListener("click", (e) => { if (e.target !== previewImg) hideOverlay() });
 
     image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.style.display = "inline"; });
     image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.style.display = "inline"; });
@@ -154,18 +158,15 @@ function select(i) {
         const file = currentSet[i].SourceFile;
         selected[file] = !selected[file];
     }
-    
-    section1.classList.remove("selected");
-    section2.classList.remove("selected");
-    section3.classList.remove("selected");
 
     const numFiles = getSelectedFiles().length;
     move.disabled = numFiles === 0;
     move.innerHTML = "Move " + (numFiles > 0 ? numFiles : "") + " Files";
-    
-    if (currentSet.length > 0 && selected[currentSet[0].SourceFile]) section1.classList.add("selected");
-    if (currentSet.length > 1 && selected[currentSet[1].SourceFile]) section2.classList.add("selected");
-    if (currentSet.length > 2 && selected[currentSet[2].SourceFile]) section3.classList.add("selected");
+
+    // Toggle based on state, the !! means convert from truthy to boolean
+    section1.classList.toggle("selected", !!(currentSet.length > 0 && selected[currentSet[0].SourceFile]));
+    section2.classList.toggle("selected", !!(currentSet.length > 1 && selected[currentSet[1].SourceFile]));
+    section3.classList.toggle("selected", !!(currentSet.length > 2 && selected[currentSet[2].SourceFile]));
 
     if (overlayShown() && previewIndex === i) preview(previewIndex);
 }
@@ -181,6 +182,14 @@ function preview(i) {
     previewImg.src = currentSet[previewIndex].PreviewFile;
 
     previewImg.style.boxShadow = selected[currentSet[previewIndex].SourceFile] ? "0 0 4em rgba(255, 0, 0, 0.75)" : "";
+
+    pager1.style.display = currentSet.length > 0 ? "inline" : "none";
+    pager2.style.display = currentSet.length > 1 ? "inline" : "none";
+    pager3.style.display = currentSet.length > 2 ? "inline" : "none";
+
+    pager1.classList.toggle("active", previewIndex === 0);
+    pager2.classList.toggle("active", previewIndex === 1);
+    pager3.classList.toggle("active", previewIndex === 2);
 }
 
 function update(i) {
