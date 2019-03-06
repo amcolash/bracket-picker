@@ -24,7 +24,7 @@ window.onload = () => {
     image2.addEventListener("click", () => select(1));
     image3.addEventListener("click", () => select(2));
     
-    previewImg.addEventListener("click", () => select(previewIndex));
+    previewImg.addEventListener("click", (e) => { e.stopPropagation(); select(previewIndex) });
 
     preview1.addEventListener("click", () => preview(0));
     preview2.addEventListener("click", () => preview(1));
@@ -34,11 +34,11 @@ window.onload = () => {
     pager2.addEventListener("click", (e) => { e.stopPropagation(); preview(1); });
     pager3.addEventListener("click", (e) => { e.stopPropagation(); preview(2); });
 
-    overlay.addEventListener("click", (e) => { if (e.target !== previewImg) hideOverlay() });
+    overlay.addEventListener("click", (e) => { hideOverlay(); });
 
-    image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.style.display = "inline"; });
-    image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.style.display = "inline"; });
-    image3.addEventListener("load", () => { file3.innerText = getInfo(currentSet[2]); section3.style.display = "inline"; });
+    image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.classList.remove("hidden"); });
+    image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.classList.remove("hidden"); });
+    image3.addEventListener("load", () => { file3.innerText = getInfo(currentSet[2]); section3.classList.remove("hidden"); });
     
     document.onkeydown = checkKey;
 
@@ -181,11 +181,11 @@ function preview(i) {
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
 
-    previewImg.style.boxShadow = selected[currentSet[previewIndex].SourceFile] ? "0 0 4em rgba(255, 0, 0, 0.75)" : "";
+    previewImg.classList.toggle("selected", !!selected[currentSet[previewIndex].SourceFile]);
 
-    pager1.style.display = currentSet.length > 0 ? "inline" : "none";
-    pager2.style.display = currentSet.length > 1 ? "inline" : "none";
-    pager3.style.display = currentSet.length > 2 ? "inline" : "none";
+    pager1.classList.toggle("hidden", currentSet.length < 1);
+    pager2.classList.toggle("hidden", currentSet.length < 2);
+    pager3.classList.toggle("hidden", currentSet.length < 3);
 
     pager1.classList.toggle("active", previewIndex === 0);
     pager2.classList.toggle("active", previewIndex === 1);
@@ -197,9 +197,13 @@ function update(i) {
 
     stats.innerText = "Set: " + (setIndex + 1) + " / " + setsLength + ", Total Files: " + totalSize;
 
-    section1.style.display = "none";
-    section2.style.display = "none";
-    section3.style.display = "none";
+    section1.classList.add("hidden");
+    section2.classList.add("hidden");
+    section3.classList.add("hidden");
+
+    section1.classList.remove("selected");
+    section2.classList.remove("selected");
+    section3.classList.remove("selected");
 
     image1.src = "";
     image2.src = "";
@@ -209,10 +213,6 @@ function update(i) {
     file1.innerText = "";
     file2.innerText = "";
     file3.innerText = "";
-
-    section1.classList.remove("selected");
-    section2.classList.remove("selected");
-    section3.classList.remove("selected");
 
     if (setIndex < setsLength) {
         const set = sets[Object.keys(sets)[setIndex]];
@@ -260,19 +260,19 @@ function moveFiles() {
 
     move.disabled = true;
     undo.disabled = true;
-    loader.style.display = "inline-block";
+    loader.classList.remove("hidden");
     selected = {};
 
     axios.post('/move', { files: files }).then(data => {
         move.innerHTML = "Move Files";
         undo.disabled = false;
-        loader.style.display = "none";
+        loader.classList.add("hidden");
         getData();
     }).catch((err) => {
         console.error(err);
         move.innerHTML = "Move Files";
         undo.disabled = false;
-        loader.style.display = "none";
+        loader.classList.add("hidden");
     });
 }
 
@@ -281,17 +281,17 @@ function undoMove() {
 
     undo.disabled = true;
     move.disabled = true;
-    loader.style.display = "inline-block";
+    loader.classList.remove("hidden");
 
     axios.post('/undo').then(data => {
         undo.disabled = false;
         move.disabled = false;
-        loader.style.display = "none";
+        loader.classList.add("hidden");
         getData();
     }).catch((err) => {
         console.error(err);
         undo.disabled = false;
         move.disabled = false;
-        loader.style.display = "none";
+        loader.classList.add("hidden");
     });
 }

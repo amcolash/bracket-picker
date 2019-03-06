@@ -4,6 +4,11 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.hidden {
+    display: none;
+    opacity: 0;
+}
+
 #hzImg {
     display: none !important;
 }
@@ -57,7 +62,6 @@ body {
 .section {
     padding: 0.25em 0.35em;
     text-align: center;
-    display: none;
 }
 
 #overlay {
@@ -89,6 +93,10 @@ body {
     transition: box-shadow 0.35s;
 }
 
+#previewImg.selected {
+    box-shadow: 0 0 4em rgba(255, 0, 0, 0.75);
+}
+
 #overlay svg {
     cursor: pointer;
     position: absolute;
@@ -109,16 +117,13 @@ body {
     color: white;
 }
 
-#loader {
-    display: none;
-}
-
 /* Loading spinner from https://loading.io/css/ */
 .lds-dual-ring {
     display: inline-block;
     position: relative;
     left: 5px;
     top: 6px;
+    transition: opacity 0.2s;
 }
 .lds-dual-ring:after {
     content: " ";
