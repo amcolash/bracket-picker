@@ -10,7 +10,6 @@ const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
     feather.replace();
-    overlay.style.display = "none";
 
     back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
     forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)));
@@ -25,13 +24,13 @@ window.onload = () => {
     image2.addEventListener("click", () => select(1));
     image3.addEventListener("click", () => select(2));
     
+    previewImg.addEventListener("click", () => select(previewIndex));
+
     preview1.addEventListener("click", () => preview(0));
     preview2.addEventListener("click", () => preview(1));
     preview3.addEventListener("click", () => preview(2));
 
-    overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) overlay.style.display = "none";
-    });
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) hideOverlay() });
 
     image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.style.display = "inline"; });
     image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.style.display = "inline"; });
@@ -47,8 +46,6 @@ window.onload = () => {
 
     new Hammer(overlay).on('swiperight', () => preview(previewIndex - 1));
     new Hammer(overlay, { recognizers: [[Hammer.Swipe, { pointers: 2 }]]}).on('swiperight', () => back.click());
-    
-    new Hammer(previewImg).on('tap', () => select(previewIndex));
 
     const pinchOut = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 1.25 } ]] };
     const pinchIn = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 0.5 } ]] };
@@ -56,7 +53,7 @@ window.onload = () => {
     new Hammer(image1, pinchOut).on('pinchout', () => preview(0));
     new Hammer(image2, pinchOut).on('pinchout', () => preview(1));
     new Hammer(image3, pinchOut).on('pinchout', () => preview(2));
-    new Hammer(overlay, pinchIn).on('pinchin', () => overlay.style.display = "none");
+    new Hammer(overlay, pinchIn).on('pinchin', () => hideOverlay());
 
     getData();
 }
@@ -68,39 +65,39 @@ function checkKey(e) {
     if (e.keyCode == '13' && e.ctrlKey) { // Enter + Ctrl
         moveFiles();
     } else if (e.keyCode == '37' && e.ctrlKey) { // Left Arrow + Ctrl
-        if (overlay.style.display !== "none") {
+        if (overlayShown()) {
             back.click();
         } else {
             backLarge.click();
         }
     } else if (e.keyCode == '37') { // Left Arrow
-        if (overlay.style.display !== "none") {
+        if (overlayShown()) {
             preview(previewIndex - 1);
         } else {
             back.click();
         }
     } else if (e.keyCode == '39' && e.ctrlKey) { // Right Arrow + Ctrl
-        if (overlay.style.display !== "none") {
+        if (overlayShown()) {
             forward.click();
         } else {
             forwardLarge.click();
         }
     } else if (e.keyCode == '39') { // Right Arrow
-        if (overlay.style.display !== "none") {
+        if (overlayShown()) {
             preview(previewIndex + 1);
         } else {
             forward.click();
         }
     } else if (e.keyCode == '49') { // 1
-        if (overlay.style.display === "none") select(0);
+        if (!overlayShown()) select(0);
     } else if (e.keyCode == '50') { // 2
-        if (overlay.style.display === "none") select(1);
+        if (!overlayShown()) select(1);
     } else if (e.keyCode == '51') { // 3
-        if (overlay.style.display === "none") select(2);
+        if (!overlayShown()) select(2);
     } else if (e.keyCode == '27') { // esc
-        overlay.style.display = "none";
-    } else if (e.keyCode == '32' || e.keyCode == '82' || e.keyCode == '16') { // space, r, shift
-        if (overlay.style.display !== "none") {
+        hideOverlay();
+    } else if (e.keyCode == '32' || e.keyCode == '82') { // space, r
+        if (overlayShown()) {
             select(previewIndex);
         }
     } else if (e.keyCode == '81') { // q
@@ -110,8 +107,8 @@ function checkKey(e) {
     } else if (e.keyCode == '69') { // e
         preview(2);
     } else if (e.keyCode == '90') { // z
-        if (overlay.style.display !== "none") {
-            overlay.style.display = "none";
+        if (overlayShown()) {
+            hideOverlay();
         } else {
             preview(0);
         }
@@ -140,6 +137,18 @@ function getData() {
     });
 }
 
+function showOverlay() {
+    overlay.classList.add("shown");
+}
+
+function hideOverlay() {
+    overlay.classList.remove("shown");
+}
+
+function overlayShown() {
+    return overlay.classList.contains("shown");
+}
+
 function select(i) {
     if (currentSet.length > i) {
         const file = currentSet[i].SourceFile;
@@ -158,7 +167,7 @@ function select(i) {
     if (currentSet.length > 1 && selected[currentSet[1].SourceFile]) section2.classList.add("selected");
     if (currentSet.length > 2 && selected[currentSet[2].SourceFile]) section3.classList.add("selected");
 
-    if (overlay.style.display !== "none" && previewIndex === i) preview(previewIndex);
+    if (overlayShown() && previewIndex === i) preview(previewIndex);
 }
 
 function getInfo(file) {
@@ -168,7 +177,7 @@ function getInfo(file) {
 
 function preview(i) {
     previewIndex = mod(i, currentSet.length);
-    overlay.style.display = "flex";
+    showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
 
     previewImg.style.boxShadow = selected[currentSet[previewIndex].SourceFile] ? "0 0 4em rgba(255, 0, 0, 0.75)" : "";
@@ -221,7 +230,7 @@ function update(i) {
         }
     }
 
-    if (overlay.style.display !== "none") preview(0);
+    if (overlayShown()) preview(0);
 }
 
 function getSelectedFiles() {
