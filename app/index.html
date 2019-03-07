@@ -7,24 +7,49 @@
     <title>Bracket Picker</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="buttons.min.css">
 </head>
 <body>
     <div id="app">
         <div id="controls">
             <span id="stats"></span>
-            <button id="backLarge">&lt;&lt;</button>
-            <button id="back">&lt;</button>
-            <button id="forward">&gt;</button>
-            <button id="forwardLarge">&gt;&gt;</button>
+            <button class="btn btn-default" id="backLarge">&lt;&lt;</button>
+            <button class="btn btn-default" id="back">&lt;</button>
+            <button class="btn btn-default" id="forward">&gt;</button>
+            <button class="btn btn-default" id="forwardLarge">&gt;&gt;</button>
             <!-- <button id="reset">X</button> -->
-            <button id="move" disabled>Move Files</button>
-            <button id="undo">Undo</button>
+            <button class="btn btn-default" id="move" disabled>Move Files</button>
+            <button class="btn btn-default" id="undo">Undo</button>
             <div class="lds-dual-ring hidden" id="loader"></div>
         </div>
         <div id="images">
-            <div class="section hidden" id="section1"><div class="image"><img id="image1" src=""><i id="preview1" data-feather="search"></i></div><br><span id="file1"></span></div>
-            <div class="section hidden" id="section2"><div class="image"><img id="image2" src=""><i id="preview2" data-feather="search"></i></div><br><span id="file2"></span></div>
-            <div class="section hidden" id="section3"><div class="image"><img id="image3" src=""><i id="preview3" data-feather="search"></i></div><br><span id="file3"></span></div>
+            <div class="section hidden" id="section1">
+                <div class="image">
+                <img id="image1" src="">
+                <i id="preview1" data-feather="search"></i>
+            </div>
+            <div class="file">
+                <span id="file1"></span>
+            </div>
+        </div>
+            <div class="section hidden" id="section2">
+                <div class="image">
+                <img id="image2" src="">
+                <i id="preview2" data-feather="search"></i>
+            </div>
+            <div class="file">
+                <span id="file2"></span>
+            </div>
+        </div>
+            <div class="section hidden" id="section3">
+                <div class="image">
+                <img id="image3" src="">
+                <i id="preview3" data-feather="search"></i>
+            </div>
+            <div class="file">
+                <span id="file3"></span>
+            </div>
+        </div>
         </div>
         <div id="overlay">
         <i data-feather="x"></i>
