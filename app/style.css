@@ -68,22 +68,25 @@ body {
 .image {
     position: relative;
     display: inline-block;
+    overflow: hidden;
+    border: 2px solid #777;
+    border-radius: 4px;
 }
 
 .image img {
     max-width: 100%;
     max-height: calc(65vh);
-    border: 1px solid white;
     align-self: center;
+    vertical-align: -webkit-baseline-middle;
 }
 
 .image .feather-search {
     position: absolute;
-    bottom: 5px;
-    right: 0px;
-    padding: 8px;
+    bottom: 0;
+    right: 0;
+    padding: 10px;
     background-color: rgba(255, 255, 255,0.3);
-    border-radius: 3px 0 0 0;
+    border-radius: 4px 0 2px 0;
     cursor: pointer;
 }
 
