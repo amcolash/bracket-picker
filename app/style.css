@@ -22,7 +22,6 @@ body {
 .file, #controls {
     display: inline-block;
     background-color: #444;
-    margin-top: 1em;
     padding: 1.15em 2em;
     line-height: 1.25em;
     border: 0.15em solid #777;
@@ -50,18 +49,17 @@ body {
 #images {
     display: flex;
     align-items: center;
-    height: calc(94vh);
+    height: calc(90vh);
 }
 
 .image {
     position: relative;
     display: inline-block;
-    margin: 0.5em;
 }
 
 .image img {
     max-width: 100%;
-    max-height: calc(80vh);
+    max-height: calc(65vh);
     border: 1px solid white;
     align-self: center;
 }
