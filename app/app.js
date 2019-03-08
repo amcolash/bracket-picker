@@ -24,37 +24,37 @@ window.onload = () => {
         }
    };
 
-    back.addEventListener("click", () => update(mod(setIndex - 1, setsLength)));
-    forward.addEventListener("click", () => update(mod(setIndex + 1, setsLength)));
-    backLarge.addEventListener("click", () => update(mod(setIndex - 5, setsLength)));
-    forwardLarge.addEventListener("click", () => update(mod(setIndex + 5, setsLength)));
+    back.addEventListener('click', () => update(mod(setIndex - 1, setsLength)));
+    forward.addEventListener('click', () => update(mod(setIndex + 1, setsLength)));
+    backLarge.addEventListener('click', () => update(mod(setIndex - 5, setsLength)));
+    forwardLarge.addEventListener('click', () => update(mod(setIndex + 5, setsLength)));
     
-    // reset.addEventListener("click", () => update(0));
-    move.addEventListener("click", moveFiles);
-    undo.addEventListener("click", undoMove);
+    // reset.addEventListener('click', () => update(0));
+    move.addEventListener('click', moveFiles);
+    undo.addEventListener('click', undoMove);
     
-    image1.addEventListener("click", () => select(0));
-    image2.addEventListener("click", () => select(1));
-    image3.addEventListener("click", () => select(2));
+    image1.addEventListener('click', () => select(0));
+    image2.addEventListener('click', () => select(1));
+    image3.addEventListener('click', () => select(2));
     
-    previewImg.addEventListener("click", (e) => { e.stopPropagation(); select(previewIndex) });
+    previewImg.addEventListener('click', (e) => { e.stopPropagation(); select(previewIndex) });
 
-    preview1.addEventListener("click", () => preview(0));
-    preview2.addEventListener("click", () => preview(1));
-    preview3.addEventListener("click", () => preview(2));
+    preview1.addEventListener('click', () => preview(0));
+    preview2.addEventListener('click', () => preview(1));
+    preview3.addEventListener('click', () => preview(2));
 
-    pager1.addEventListener("click", (e) => { e.stopPropagation(); preview(0); });
-    pager2.addEventListener("click", (e) => { e.stopPropagation(); preview(1); });
-    pager3.addEventListener("click", (e) => { e.stopPropagation(); preview(2); });
+    pager1.addEventListener('click', (e) => { e.stopPropagation(); preview(0); });
+    pager2.addEventListener('click', (e) => { e.stopPropagation(); preview(1); });
+    pager3.addEventListener('click', (e) => { e.stopPropagation(); preview(2); });
 
-    leftArrow.addEventListener("click", (e) => { e.stopPropagation(); preview(previewIndex - 1); });
-    rightArrow.addEventListener("click", (e) => { e.stopPropagation(); preview(previewIndex + 1); });
+    leftArrow.addEventListener('click', (e) => { e.stopPropagation(); preview(previewIndex - 1); });
+    rightArrow.addEventListener('click', (e) => { e.stopPropagation(); preview(previewIndex + 1); });
 
-    overlay.addEventListener("click", (e) => { hideOverlay(); });
+    overlay.addEventListener('click', (e) => { hideOverlay(); });
 
-    image1.addEventListener("load", () => { file1.innerText = getInfo(currentSet[0]); section1.classList.remove("hidden"); });
-    image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.classList.remove("hidden"); });
-    image3.addEventListener("load", () => { file3.innerText = getInfo(currentSet[2]); section3.classList.remove("hidden"); });
+    image1.addEventListener('load', () => { file1.innerText = getInfo(currentSet[0]); section1.classList.remove('hidden'); });
+    image2.addEventListener('load', () => { file2.innerText = getInfo(currentSet[1]); section2.classList.remove('hidden'); });
+    image3.addEventListener('load', () => { file3.innerText = getInfo(currentSet[2]); section3.classList.remove('hidden'); });
     
     window.onkeydown = checkKey;
     window.onkeyup = () => lastKey = null;
@@ -142,9 +142,9 @@ function checkKey(e) {
         } else {
             preview(0);
         }
-    } else if (e.keyCode == '191') { // "/"
+    } else if (e.keyCode == '191') { // '/'
         forward.click();
-    } else if (e.keyCode == '190') { // "."
+    } else if (e.keyCode == '190') { // '.'
         back.click();
     }
 }
@@ -168,21 +168,21 @@ function getData() {
 }
 
 function showOverlay() {
-    overlay.classList.add("shown");
-    file1.classList.add("invisible");
-    file2.classList.add("invisible");
-    file3.classList.add("invisible");
+    overlay.classList.add('shown');
+    file1.classList.add('invisible');
+    file2.classList.add('invisible');
+    file3.classList.add('invisible');
 }
 
 function hideOverlay() {
-    overlay.classList.remove("shown");
-    file1.classList.remove("invisible");
-    file2.classList.remove("invisible");
-    file3.classList.remove("invisible");
+    overlay.classList.remove('shown');
+    file1.classList.remove('invisible');
+    file2.classList.remove('invisible');
+    file3.classList.remove('invisible');
 }
 
 function overlayShown() {
-    return overlay.classList.contains("shown");
+    return overlay.classList.contains('shown');
 }
 
 function select(i) {
@@ -193,19 +193,19 @@ function select(i) {
 
     const numFiles = getSelectedFiles().length;
     move.disabled = numFiles === 0;
-    move.innerHTML = "Move " + (numFiles > 0 ? numFiles : "") + " Files";
+    move.innerHTML = 'Move ' + (numFiles > 0 ? numFiles : '') + ' Files';
 
     // Toggle based on state, the !! means convert from truthy to boolean
-    section1.classList.toggle("selected", !!(currentSet.length > 0 && selected[currentSet[0].SourceFile]));
-    section2.classList.toggle("selected", !!(currentSet.length > 1 && selected[currentSet[1].SourceFile]));
-    section3.classList.toggle("selected", !!(currentSet.length > 2 && selected[currentSet[2].SourceFile]));
+    section1.classList.toggle('selected', !!(currentSet.length > 0 && selected[currentSet[0].SourceFile]));
+    section2.classList.toggle('selected', !!(currentSet.length > 1 && selected[currentSet[1].SourceFile]));
+    section3.classList.toggle('selected', !!(currentSet.length > 2 && selected[currentSet[2].SourceFile]));
 
     if (overlayShown() && previewIndex === i) preview(previewIndex);
 }
 
 function getInfo(file) {
-    return file.FileName + "\nAperture: F" + file.Aperture + "\nISO: " + file.ISO + "\nShutter Speed: " + file.ShutterSpeed +
-        "\nFocal Length: " + file.FocalLength + "\nBracket Value: " + file.AEBBracketValue;
+    return file.FileName + '\nAperture: F' + file.Aperture + '\nISO: ' + file.ISO + '\nShutter Speed: ' + file.ShutterSpeed +
+        '\nFocal Length: ' + file.FocalLength + '\nBracket Value: ' + file.AEBBracketValue;
 }
 
 function preview(i) {
@@ -224,62 +224,62 @@ function preview(i) {
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
 
-    previewImg.classList.toggle("selected", !!selected[currentSet[previewIndex].SourceFile]);
+    previewImg.classList.toggle('selected', !!selected[currentSet[previewIndex].SourceFile]);
 
-    pager1.classList.toggle("hidden", currentSet.length < 1);
-    pager2.classList.toggle("hidden", currentSet.length < 2);
-    pager3.classList.toggle("hidden", currentSet.length < 3);
+    pager1.classList.toggle('hidden', currentSet.length < 1);
+    pager2.classList.toggle('hidden', currentSet.length < 2);
+    pager3.classList.toggle('hidden', currentSet.length < 3);
 
-    pager1.classList.toggle("active", previewIndex === 0);
-    pager2.classList.toggle("active", previewIndex === 1);
-    pager3.classList.toggle("active", previewIndex === 2);
+    pager1.classList.toggle('active', previewIndex === 0);
+    pager2.classList.toggle('active', previewIndex === 1);
+    pager3.classList.toggle('active', previewIndex === 2);
 }
 
 function update(i) {
     setIndex = i;
 
-    stats.innerText = "Set: " + (setIndex + 1) + " / " + setsLength + ", Total Files: " + totalSize;
-    pagerNumber.innerHTML = (setIndex + 1) + "/" + setsLength;
+    stats.innerText = 'Set: ' + (setIndex + 1) + ' / ' + setsLength + ', Total Files: ' + totalSize;
+    pagerNumber.innerHTML = (setIndex + 1) + '/' + setsLength;
 
-    section1.classList.add("hidden");
-    section2.classList.add("hidden");
-    section3.classList.add("hidden");
+    section1.classList.add('hidden');
+    section2.classList.add('hidden');
+    section3.classList.add('hidden');
 
-    section1.classList.remove("selected");
-    section2.classList.remove("selected");
-    section3.classList.remove("selected");
+    section1.classList.remove('selected');
+    section2.classList.remove('selected');
+    section3.classList.remove('selected');
 
-    image1.src = "";
-    image2.src = "";
-    image3.src = "";
+    image1.src = '';
+    image2.src = '';
+    image3.src = '';
 
     // 4 new lines so that things don't get funky with loading moving around layout
-    file1.innerText = "";
-    file2.innerText = "";
-    file3.innerText = "";
+    file1.innerText = '';
+    file2.innerText = '';
+    file3.innerText = '';
 
     if (setIndex < setsLength) {
         const set = sets[Object.keys(sets)[setIndex]];
         currentSet = set;
 
-        const width = set.length > 2 ? "32.5%" : set.length > 1 ? "49.5%" : "99%";
+        const width = set.length > 2 ? '32.5%' : set.length > 1 ? '49.5%' : '99%';
         section1.style.width = width;
         section2.style.width = width;
         section3.style.width = width;
 
         if (set.length > 0) {
             image1.src = set[0].PreviewFile;
-            if (selected[set[0].SourceFile]) section1.classList.add("selected");
+            if (selected[set[0].SourceFile]) section1.classList.add('selected');
         }
 
         if (set.length > 1) {
             image2.src = set[1].PreviewFile;
-            if (selected[set[1].SourceFile]) section2.classList.add("selected");
+            if (selected[set[1].SourceFile]) section2.classList.add('selected');
         }
 
         if (set.length > 2) {
             image3.src = set[2].PreviewFile;
-            if (selected[set[2].SourceFile]) section3.classList.add("selected");
+            if (selected[set[2].SourceFile]) section3.classList.add('selected');
         }
     }
 
@@ -300,42 +300,42 @@ function getSelectedFiles() {
 
 function moveFiles() {
     const files = getSelectedFiles();
-    if (!confirm("Are you sure you want to move " + files.length + " files?")) return;
+    if (!confirm('Are you sure you want to move ' + files.length + ' files?')) return;
 
     move.disabled = true;
     undo.disabled = true;
-    loader.classList.remove("hidden");
+    loader.classList.remove('hidden');
     selected = {};
 
     axios.post('/move', { files: files }).then(data => {
-        move.innerHTML = "Move Files";
+        move.innerHTML = 'Move Files';
         undo.disabled = false;
-        loader.classList.add("hidden");
+        loader.classList.add('hidden');
         getData();
     }).catch((err) => {
         console.error(err);
-        move.innerHTML = "Move Files";
+        move.innerHTML = 'Move Files';
         undo.disabled = false;
-        loader.classList.add("hidden");
+        loader.classList.add('hidden');
     });
 }
 
 function undoMove() {
-    if (!confirm("Are you sure you want to undo ALL changes?")) return;
+    if (!confirm('Are you sure you want to undo ALL changes?')) return;
 
     undo.disabled = true;
     move.disabled = true;
-    loader.classList.remove("hidden");
+    loader.classList.remove('hidden');
 
     axios.post('/undo').then(data => {
         undo.disabled = false;
         move.disabled = false;
-        loader.classList.add("hidden");
+        loader.classList.add('hidden');
         getData();
     }).catch((err) => {
         console.error(err);
         undo.disabled = false;
         move.disabled = false;
-        loader.classList.add("hidden");
+        loader.classList.add('hidden');
     });
 }
