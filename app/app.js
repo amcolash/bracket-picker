@@ -5,6 +5,10 @@ var setsLength = 0;
 var totalSize = 0;
 var selected = {};
 var currentSet = [];
+var lastKey; 
+
+// TODO: Select All (Either when selecting, or a button)
+// That makes it easier to then remove only the ones that should stay
 
 const mod = (x, n) => (x % n + n) % n;
 
@@ -52,7 +56,8 @@ window.onload = () => {
     image2.addEventListener("load", () => { file2.innerText = getInfo(currentSet[1]); section2.classList.remove("hidden"); });
     image3.addEventListener("load", () => { file3.innerText = getInfo(currentSet[2]); section3.classList.remove("hidden"); });
     
-    document.onkeydown = checkKey;
+    window.onkeydown = checkKey;
+    window.onkeyup = () => lastKey = null;
 
     const pinchOut = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 1.25 } ]] };
     const pinchIn = { recognizers: [[ Hammer.Pinch, { enable: true, threshold: 0.5 } ]] };
@@ -82,6 +87,9 @@ window.onload = () => {
 
 function checkKey(e) {
     e = e || window.event;
+
+    if (e.keyCode === lastKey) return;
+    lastKey = e.keyCode;
 
     // Call click function to use the same logic as the buttons
     if (e.keyCode == '13' && e.ctrlKey) { // Enter + Ctrl
