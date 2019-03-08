@@ -10,7 +10,7 @@ const baseTmpDir = '/tmp/bracket-picker/';
 var dir;
 var tmpDir;
 
-const PORT = 9000;
+const PORT = 8080;
 const app = express();
 app.use(express.json());
 

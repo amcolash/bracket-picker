@@ -1,0 +1,12 @@
+version: '2'
+services:
+  bracket-picker:
+    image: amcolash/bracket-picker
+    build: ./
+    container_name: bracket-picker
+    restart: unless-stopped
+    volumes:
+      - ./test1:/test1
+    ports:
+      - 8080:8080
+    entrypoint: node /usr/src/app/index.js /test1
