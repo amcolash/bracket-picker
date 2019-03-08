@@ -142,6 +142,8 @@ function checkKey(e) {
         } else {
             preview(0);
         }
+    } else if (e.keyCode == '88') { // x
+        fileInfo.classList.toggle('invisible');
     } else if (e.keyCode == '191') { // '/'
         forward.click();
     } else if (e.keyCode == '190') { // '.'
@@ -169,16 +171,18 @@ function getData() {
 
 function showOverlay() {
     overlay.classList.add('shown');
-    file1.classList.add('invisible');
-    file2.classList.add('invisible');
-    file3.classList.add('invisible');
+    file1.parentElement.classList.add('invisible');
+    file2.parentElement.classList.add('invisible');
+    file3.parentElement.classList.add('invisible');
+    controls.classList.add('invisible');
 }
 
 function hideOverlay() {
     overlay.classList.remove('shown');
-    file1.classList.remove('invisible');
-    file2.classList.remove('invisible');
-    file3.classList.remove('invisible');
+    file1.parentElement.classList.remove('invisible');
+    file2.parentElement.classList.remove('invisible');
+    file3.parentElement.classList.remove('invisible');
+    controls.classList.remove('invisible');
 }
 
 function overlayShown() {
@@ -223,6 +227,7 @@ function preview(i) {
     previewIndex = mod(i, currentSet.length);
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
+    overlayFile.innerText = getInfo(currentSet[previewIndex]);
 
     previewImg.classList.toggle('selected', !!selected[currentSet[previewIndex].SourceFile]);
 
