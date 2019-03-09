@@ -226,7 +226,7 @@ async function undo(req, res) {
         const files = fs.readdirSync(dir + 'moved/');
         for (var i = 0; i < files.length; i++) {
             const file = dir + 'moved/' + files[i];
-            const fileDest = dir + '/' + path.basename(files[i]);
+            const fileDest = dir + path.basename(files[i]);
 
             console.log('moving', file, 'to', fileDest);
             fs.moveSync(file, fileDest);
