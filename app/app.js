@@ -124,6 +124,10 @@ function checkKey(e) {
         if (!overlayShown()) select(1);
     } else if (e.keyCode == '51') { // 3
         if (!overlayShown()) select(2);
+    } else if (e.keyCode == '65') { // a
+        selectAll();
+    } else if (e.keyCode == '83') { // s
+        selectNone();
     } else if (e.keyCode == '27') { // esc
         hideOverlay();
     } else if (e.keyCode == '32' || e.keyCode == '82') { // space, r
@@ -189,6 +193,22 @@ function overlayShown() {
     return overlay.classList.contains('shown');
 }
 
+function selectAll() {
+    if (!isSelected(0)) select(0);
+    if (!isSelected(1)) select(1);
+    if (!isSelected(2)) select(2);
+}
+
+function selectNone() {
+    if (isSelected(0)) select(0);
+    if (isSelected(1)) select(1);
+    if (isSelected(2)) select(2);
+}
+
+function isSelected(i) {
+    return !!(currentSet.length > i && selected[currentSet[i].SourceFile]);
+}
+
 function select(i) {
     if (currentSet.length > i) {
         const file = currentSet[i].SourceFile;
@@ -200,9 +220,9 @@ function select(i) {
     move.innerHTML = 'Move ' + (numFiles > 0 ? numFiles : '') + ' Files';
 
     // Toggle based on state, the !! means convert from truthy to boolean
-    section1.classList.toggle('selected', !!(currentSet.length > 0 && selected[currentSet[0].SourceFile]));
-    section2.classList.toggle('selected', !!(currentSet.length > 1 && selected[currentSet[1].SourceFile]));
-    section3.classList.toggle('selected', !!(currentSet.length > 2 && selected[currentSet[2].SourceFile]));
+    section1.classList.toggle('selected', isSelected(0));
+    section2.classList.toggle('selected', isSelected(1));
+    section3.classList.toggle('selected', isSelected(2));
 
     if (overlayShown() && previewIndex === i) preview(previewIndex);
 }
