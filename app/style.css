@@ -42,7 +42,7 @@ body {
     transition: opacity 0.35s;
 }
 
-.selected .image img {
+.selected .image {
     outline: 2px solid red;
     outline-offset: -2px;
 }

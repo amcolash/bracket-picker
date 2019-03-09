@@ -267,7 +267,7 @@ function update(i) {
         const set = sets[Object.keys(sets)[setIndex]];
         currentSet = set;
 
-        const width = set.length > 2 ? '32.5%' : set.length > 1 ? '49.5%' : '99%';
+        const width = set.length > 2 ? '33.3%' : set.length > 1 ? '50%' : '100%';
         section1.style.width = width;
         section2.style.width = width;
         section3.style.width = width;
