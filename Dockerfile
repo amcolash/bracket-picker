@@ -5,7 +5,7 @@ FROM mhart/alpine-node:10
 WORKDIR /usr/src/app
 
 # Install deps
-RUN apk add exiftool gcc libc-dev
+RUN apk add exiftool gcc libc-dev libjpeg-turbo-utils
 
 # Grab exifautotran
 RUN wget -P /usr/bin/ https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran
