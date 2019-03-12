@@ -119,6 +119,7 @@ function getDirTree(directory) {
 
         // Run a batch extract of all folders in the root directory
         console.log('Running batch extract on all folders in root directory:', directory);
+        console.log('---------------------------------------------------------------');
         
         const batchPaths = paths.filter(path => { return !path.match(/\.git|app|node_modules|moved/) });
         batchPaths.push(directory);
@@ -128,6 +129,7 @@ function getDirTree(directory) {
             extractPreviews();
         }
 
+        console.log('---------------------------------------------------------------');
         console.log('Batch process done');
 
         // Cleanup
