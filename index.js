@@ -116,20 +116,45 @@ function getDirTree(directory) {
             .filter(path => { return !path.match(/\.git|app|node_modules|moved/) })
             .map(path => path.split('/').slice(1))
             .reduce((children, path) => insert(children, path), []);
+
+        // Run a batch extract of all folders in the root directory
+        console.log('Running batch extract on all folders in root directory:', directory);
+        
+        const batchPaths = paths.filter(path => { return !path.match(/\.git|app|node_modules|moved/) });
+        batchPaths.push(directory);
+        for (var i = 0; i < batchPaths.length; i++) {
+            dir = batchPaths[i];
+            tmpDir = baseTmpDir + path.basename(dir) + '/';
+            extractPreviews();
+        }
+
+        console.log('Batch process done');
+
+        // Cleanup
+        dir = undefined;
+        tmpDir = undefined;
     });
 }
 
 function extractPreviews() {
     var modified = false;
 
-    const files = fs.readdirSync(dir);
+    const files = fs.readdirSync(dir, { withFileTypes: true });
     for (var i = 0; i < files.length; i++) {
-        const fileNoExt = path.basename(files[i], path.extname(files[i]));
-        const file = tmpDir + fileNoExt + '.jpg';
-        if (fs.statSync(dir + files[i]).isFile() && !fs.existsSync(file)) {
-            console.log(file + ' does not exist');
-            modified = true;
-            break;
+        const file = files[i];
+        if (file.isDirectory()) continue;
+
+        const fileNoExt = path.basename(file.name, path.extname(file.name));
+        const tmpFile = tmpDir + fileNoExt + '.jpg';
+
+        try {
+            if (!fs.existsSync(tmpFile)) {
+                console.log(file.name + ' does not exist');
+                modified = true;
+                break;
+            }
+        } catch (err) {
+            console.error(err);
         }
     }
 
