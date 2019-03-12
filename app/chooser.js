@@ -1,9 +1,12 @@
 var loading = false;
+var baseDir;
 
 window.onload = () => {
     axios.get('/dirs').then(data => {
+        const dirs = data.data.dirs;
+        baseDir = data.data.baseDir;
         dirList.style.display = 'block';
-        recursive(data.data, dirList, '');
+        recursive(dirs, dirList, '');
         feather.replace();
     }).catch((err) => {
         console.error(err);
@@ -20,9 +23,12 @@ function recursive(path, el, name) {
         return;
     }
 
-    const dir = document.createElement('div');
-    dir.classList = 'dir' + (el.classList.contains('dir') ? ' nested' : '');
-    el.appendChild(dir);
+    var dir;
+    if (path.name.length > 0) {
+        dir = document.createElement('div');
+        dir.classList = 'dir' + (el.classList.contains('dir') ? ' nested' : '');
+        el.appendChild(dir);
+    }
     
     const file = document.createElement('div');
     file.addEventListener('click', (e) => { e.stopPropagation(); chooseDir(file) });
@@ -35,24 +41,25 @@ function recursive(path, el, name) {
 
     if (isNested) file.appendChild(icon);
     file.innerHTML += path.name;
-    dir.appendChild(file);
+    if (dir) dir.appendChild(file);
 
     if (path.children) {
-        recursive(path.children, dir, file.filePath);
+        recursive(path.children, dir || el, file.filePath);
     }
 }
 
 function chooseDir(dir) {
     if (loading) return;
     loading = true;
-
-    const path = dir.filePath;
+    
+    const path = baseDir + '/' + dir.filePath;
+    
     const spinner = document.createElement('div');
     spinner.className = 'lds-dual-ring';
-
+    
     dir.style.paddingRight = '0.5em';
     dir.appendChild(spinner);
-
+    
     const files = document.getElementsByClassName('hover');
     for (var i = 0; i < files.length; i++) {
         files[i].classList.add('noHover');

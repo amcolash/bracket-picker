@@ -11,6 +11,7 @@ const baseTmpDir = '/tmp/bracket-picker/';
 
 var dir;
 var tmpDir;
+var baseDir;
 var sets = {};
 var dirs = {};
 
@@ -37,6 +38,7 @@ async function main() {
         
         getDirTree(rootDir);
         initServer();
+        console.log(`Running on port ${PORT}`);
     } else {
         // Only serving a single directory
         setDir(process.argv[2]);
@@ -63,7 +65,7 @@ function initServer() {
     app.get('/', (req, res) => res.sendFile(__dirname + '/app/' + (tmpDir ? 'index.html' : 'chooser.html')));
     app.use('/', express.static(__dirname + '/app'));
 
-    app.get('/dirs', (req, res) => res.send(dirs));
+    app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir }));
     app.get('/data', (req, res) => res.send(sets));
     
     app.post('/move', (req, res) => move(req, res));
@@ -106,9 +108,11 @@ function getDirTree(directory) {
             return children;
         }
 
+        baseDir = path.dirname(directory);
+
         // The below prepends '/', filters dirs, splits by '/' and then makes nested objects
         dirs = paths
-            .map(path => { return '/' + path })
+            .map(path => { return '/' + (baseDir !== '.' ? path.replace(baseDir, '') : path) })
             .filter(path => { return !path.match(/\.git|app|node_modules|moved/) })
             .map(path => path.split('/').slice(1))
             .reduce((children, path) => insert(children, path), []);
