@@ -2,19 +2,22 @@ const { execSync } = require('child_process');
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
+const nodedir = require('node-dir');
 
 const exiftool = require('node-exiftool');
 const ep = new exiftool.ExiftoolProcess();
 
 const baseTmpDir = '/tmp/bracket-picker/';
+
 var dir;
 var tmpDir;
+var sets = {};
+var dirs = {};
 
 const PORT = 8080;
 const app = express();
 app.use(express.json());
-
-var sets = {};
+app.listen(PORT);
 
 main();
 
@@ -22,48 +25,94 @@ async function main() {
     checkUsage();
 
     if (false) fs.rmdirSync(baseTmpDir);
+    fs.mkdirpSync(baseTmpDir);
 
-    if (process.argv[2] === "-b") {
-        batchProcess();
-        return;
+    // Serve an entire dir
+    if (process.argv[2] === '-d') {
+        const rootDir = process.argv[3];
+        if (!fs.exists(rootDir)) {
+            console.error(dir + ' does not exist');
+            process.exit(1);
+        }
+        
+        getDirTree(rootDir);
+        initServer();
+    } else {
+        // Only serving a single directory
+        setDir(process.argv[2]);
+        initServer();
+        console.log(`Running on port ${PORT}`);
     }
-
-    dir = process.argv[2];
-    if (dir[dir.length -1] !== "/") dir += "/";
-    tmpDir = baseTmpDir + path.basename(dir) + '/';
-
-    if (!fs.existsSync(dir)) {
-        console.error(dir + " does not exist");
-        process.exit(1);
-    }
-
-    extractPreviews();
-    sets = await getMetadata();
-
-    app.listen(PORT);
-    console.log(`Running on port ${PORT}`);
-
-    app.use('/', express.static(__dirname + '/app'));
-    app.use('/previews', express.static(tmpDir));
-    app.get('/data', (req, res) => res.send(sets));
-    app.post('/move', (req, res) => move(req, res));
-    app.post('/undo', (req, res) => undo(req, res));
 }
 
 function checkUsage() {
     // Check usage
-    if (process.argv.length < 3) {
-        console.error("Error: Usage is '" + path.basename(__filename) + " [raw_dir]' or '" + path.basename(__filename) + " -b [raw_dirs...]'");
+    if (process.argv.length < 3 || process.argv.length > 4) {
+        console.error("Error: Usage is '" + path.basename(__filename) + " [raw_dir]' or '" + path.basename(__filename) + " -d [root_photo_dir]'");
         process.exit(1);
     }
 }
 
-function batchProcess() {
-    for (var i = 3; i < process.argv.length; i++) {
-        dir = process.argv[i];
-        tmpDir = baseTmpDir + path.basename(dir) + '/';
-        extractPreviews();
+function initServer() {
+    // Disable cache since serving multiple pages from the '/' route
+    app.use((req, res, next) => {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+        next();
+    });
+
+    app.get('/', (req, res) => res.sendFile(__dirname + '/app/' + (tmpDir ? 'index.html' : 'chooser.html')));
+    app.use('/', express.static(__dirname + '/app'));
+
+    app.get('/dirs', (req, res) => res.send(dirs));
+    app.get('/data', (req, res) => res.send(sets));
+    
+    app.post('/move', (req, res) => move(req, res));
+    app.post('/undo', (req, res) => undo(req, res));
+    app.post('/dir', (req, res) => setDir(req.body.dir, res));
+}
+
+async function setDir(newDir, res) {
+    dir = newDir;
+    if (dir[dir.length -1] !== '/') dir += '/';
+    console.log('setting base dir to', dir);
+    
+    if (!fs.existsSync(dir)) {
+        console.error(dir + ' does not exist');
+        process.exit(1);
     }
+
+    setTmp(path.basename(dir) + '/');
+
+    extractPreviews();
+    sets = await getMetadata();
+
+    if (res) res.sendStatus(200);
+}
+
+function setTmp(tmp) {
+    tmpDir = baseTmpDir + tmp;
+    app.use('/previews', express.static(tmpDir));
+}
+
+function getDirTree(directory) {
+    nodedir.subdirs(directory, function(err, paths) {
+        if (err) throw err;
+
+        // make dir tree from based off of: https://stackoverflow.com/a/44681235/2303432
+        function insert(children = [], [head, ...tail]) {
+            let child = children.find(child => child.name === head);
+            if (!child) children.push(child = {name: head, children: []});
+            if (tail.length > 0) insert(child.children, tail);
+            return children;
+        }
+
+        // The below prepends '/', filters dirs, splits by '/' and then makes nested objects
+        dirs = paths
+            .map(path => { return '/' + path })
+            .filter(path => { return !path.match(/\.git|app|node_modules|moved/) })
+            .map(path => path.split('/').slice(1))
+            .reduce((children, path) => insert(children, path), []);
+    });
 }
 
 function extractPreviews() {
@@ -100,7 +149,7 @@ function extractPreviews() {
         // Resizing doesn't seem to have an impact on image load but causes long delays on boot
         // runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 2000 --rotate');
     } else {
-        console.log("Files up to date in " + tmpDir + ", not re-extracting");
+        console.log('Files up to date in ' + tmpDir + ', not re-extracting');
     }
 }
 

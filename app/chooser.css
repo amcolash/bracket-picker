@@ -1,0 +1,65 @@
+body {
+    background-color: #333;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+    text-align: center;
+    font-size: 1.3em;
+    margin: 0;
+}
+
+#app {
+    margin: 2em;
+    height: calc(100vh - 4em);
+}
+
+#dirList {
+    display: none;
+    width: fit-content;
+    margin: auto;
+    padding: 0.75em 2.5em;
+    border-radius: 0.25em;
+    background-color: #444;
+    border: 0.1em solid #555;
+}
+
+.nested {
+    padding-left: 0.75em;
+}
+
+.nested svg {
+    padding-right: 0.25em;
+    margin-bottom: -0.2em;
+}
+
+.hover {
+    padding: 0.2em;
+    cursor: pointer;
+    width: fit-content;
+    transition: background-color 0.4s;
+}
+
+.hover:hover {
+    background-color: #555;
+}
+
+.noHover {
+    pointer-events: none;
+    cursor: auto;
+}
+
+.dir {
+    width: fit-content;
+    text-align: left;
+    line-height: 1.2em;
+}
+
+.lds-dual-ring {
+    left: 5px;
+    top: 3px;
+}
+
+.lds-dual-ring::after {
+    width: 0.7em;
+    height: 0.7em;
+}
