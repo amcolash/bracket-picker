@@ -25,7 +25,7 @@ main();
 async function main() {
     checkUsage();
 
-    if (false) fs.rmdirSync(baseTmpDir);
+    if (false) fs.emptyDirSync(baseTmpDir);
     fs.mkdirpSync(baseTmpDir);
 
     // Serve an entire dir
@@ -57,12 +57,10 @@ function checkUsage() {
 
 function initServer() {
     // Disable cache since serving multiple pages from the '/' route
-    app.use((req, res, next) => {
+    app.get('/', (req, res) => {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        next();
+        res.sendFile(__dirname + '/app/' + (tmpDir ? 'index.html' : 'chooser.html'))
     });
-
-    app.get('/', (req, res) => res.sendFile(__dirname + '/app/' + (tmpDir ? 'index.html' : 'chooser.html')));
     app.use('/', express.static(__dirname + '/app'));
 
     app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir }));
@@ -93,7 +91,7 @@ async function setDir(newDir, res) {
 
 function setTmp(tmp) {
     tmpDir = baseTmpDir + tmp;
-    app.use('/previews', express.static(tmpDir));
+    app.use('/previews', express.static(tmpDir, { maxage: '2h' }));
 }
 
 function getDirTree(directory) {
@@ -148,10 +146,14 @@ function extractPreviews() {
 
         const fileNoExt = path.basename(file.name, path.extname(file.name));
         const tmpFile = tmpDir + fileNoExt + '.jpg';
+        const tmpThumbFile = tmpDir + 'tn_' + fileNoExt + '.jpg';
 
         try {
-            if (!fs.existsSync(tmpFile)) {
-                console.log(file.name + ' does not exist');
+            const fileExists = fs.existsSync(tmpFile);
+            const thumbExists = fs.existsSync(tmpThumbFile);
+            if (!fileExists || !thumbExists) {
+                if (!fileExists) console.log(tmpFile + ' does not exist');
+                if (!thumbExists) console.log(tmpThumbFile + ' does not exist');
                 modified = true;
                 break;
             }
@@ -162,23 +164,35 @@ function extractPreviews() {
 
     if (modified) {
         console.log('Cleaning tmp files');
-        fs.removeSync(tmpDir);
+        fs.emptyDirSync(tmpDir);
         fs.mkdirpSync(tmpDir);
         
         // Extract images to tmpDir
         console.log('Extracting raw previews');
         runCommand('exiftool -b -previewimage -w ' + tmpDir + '%f.jpg --ext jpg ' + dir);
-    
-        // Write tags to extracted images
-        console.log('Writing exif data to preview files');
-        runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + tmpDir + '%f.jpg -overwrite_original --ext jpg ' + dir);
-    
-        // Fix orientation of vertical images
-        console.log('Auto rotating preview images');
-        runCommand('exifautotran ' + tmpDir + '*.jpg');
-    
-        // Resizing doesn't seem to have an impact on image load but causes long delays on boot
-        // runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 2000 --rotate');
+
+        const dirFiles = fs.readdirSync(tmpDir, { withFileTypes: true });
+        const filtered = dirFiles.filter(path => { return path.isFile() && path.name.indexOf('.jpg') !== -1 });;
+
+        // Only deal with dirs that contain extracted jpeg files
+        if (filtered.length > 0) {
+            // Write tags to extracted images
+            console.log('Writing exif data to preview files');
+            runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + tmpDir + '%f.jpg -overwrite_original --ext jpg ' + dir);
+
+            console.log('Stripping exif data, which can cause some issues');
+            runCommand('exiftool -geotag= ' + tmpDir + '*.jpg');
+        
+            // Fix orientation of vertical images
+            console.log('Auto rotating preview images');
+            runCommand('exifautotran ' + tmpDir + '*.jpg');
+        
+            // Resizing doesn't seem to have an impact on image load but causes long delays on boot
+            console.log('Generating thumbnails from full-size previews');
+            runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 700');
+        } else {
+            console.log("Didn't find any files in", dir);
+        }
     } else {
         console.log('Files up to date in ' + tmpDir + ', not re-extracting');
     }
