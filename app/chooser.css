@@ -16,6 +16,8 @@ body {
 #dirList {
     display: none;
     width: fit-content;
+    max-height: calc(100vh - 6em);
+    overflow-y: auto;
     margin: auto;
     padding: 0.75em 2.5em;
     border-radius: 0.25em;
