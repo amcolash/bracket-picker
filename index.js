@@ -9,6 +9,13 @@ const ep = new exiftool.ExiftoolProcess();
 
 const baseTmpDir = '/tmp/bracket-picker/';
 
+// List of raw extensions from https://en.wikipedia.org/wiki/Raw_image_format
+const extensionList = [
+    ".3fr", ".ari", ".arw", ".srf", ".sr2", ".bay", ".cri", ".crw", ".cr2", ".cr3", ".cap", ".iiq", ".eip", ".dcs",
+    ".dcr", ".drf", ".k25", ".kdc", ".dng", ".erf", ".fff", ".mef", ".mdc", ".mos", ".mrw", ".nef", ".nrw", ".orf",
+    ".pef", ".ptx", ".pxn", ".r3d", ".raf", ".raw", ".rw2", ".raw", ".rwl", ".dng", ".rwz", ".srw", ".x3f"
+];
+
 var dir;
 var tmpDir;
 var baseDir;
@@ -30,7 +37,7 @@ async function main() {
 
     // Serve an entire dir
     if (process.argv[2] === '-d') {
-        const rootDir = process.argv[3];
+        const rootDir = resolveDir(process.argv[3]);
         if (!fs.exists(rootDir)) {
             console.error(dir + ' does not exist');
             process.exit(1);
@@ -71,9 +78,14 @@ function initServer() {
     app.post('/dir', (req, res) => setDir(req.body.dir, res));
 }
 
+function resolveDir(dir) {
+    var resolved = path.resolve(dir);
+    if (resolved[resolved.length - 1] !== '/') resolved += '/';
+    return resolved;
+}
+
 async function setDir(newDir, res) {
-    dir = newDir;
-    if (dir[dir.length -1] !== '/') dir += '/';
+    dir = resolveDir(newDir);
     console.log('setting base dir to', dir);
     
     if (!fs.existsSync(dir)) {
@@ -90,7 +102,9 @@ async function setDir(newDir, res) {
 }
 
 function setTmp(tmp) {
-    tmpDir = baseTmpDir + tmp;
+    tmpDir = resolveDir(baseTmpDir + tmp);
+    console.log('setting tmp dir to ', tmpDir);
+
     app.use('/previews', express.static(tmpDir, { maxage: '2h' }));
 }
 
@@ -122,8 +136,8 @@ function getDirTree(directory) {
         const batchPaths = paths.filter(path => { return !path.match(/\.git|app|node_modules|moved/) });
         batchPaths.push(directory);
         for (var i = 0; i < batchPaths.length; i++) {
-            dir = batchPaths[i];
-            tmpDir = baseTmpDir + path.basename(dir) + '/';
+            dir = resolveDir(batchPaths[i]);
+            tmpDir = resolveDir(baseTmpDir + path.basename(dir));
             extractPreviews();
         }
 
@@ -143,6 +157,9 @@ function extractPreviews() {
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
         if (file.isDirectory()) continue;
+
+        const ext = path.extname(file.name).toLowerCase();
+        if (extensionList.filter(s => s.includes(ext)).length === 0) continue;
 
         const fileNoExt = path.basename(file.name, path.extname(file.name));
         const tmpFile = tmpDir + fileNoExt + '.jpg';
@@ -166,10 +183,13 @@ function extractPreviews() {
         console.log('Cleaning tmp files');
         fs.emptyDirSync(tmpDir);
         fs.mkdirpSync(tmpDir);
+
+        const escapedDir = dir.replace(/\ /g, '\\\ ');
+        const escapedTmp = tmpDir.replace(/\ /g, '\\\ ');
         
         // Extract images to tmpDir
         console.log('Extracting raw previews');
-        runCommand('exiftool -b -previewimage -w ' + tmpDir + '%f.jpg --ext jpg ' + dir);
+        runCommand('exiftool -b -previewimage -w ' + escapedTmp + '%f.jpg --ext jpg ' + escapedDir);
 
         const dirFiles = fs.readdirSync(tmpDir, { withFileTypes: true });
         const filtered = dirFiles.filter(path => { return path.isFile() && path.name.indexOf('.jpg') !== -1 });;
@@ -178,18 +198,18 @@ function extractPreviews() {
         if (filtered.length > 0) {
             // Write tags to extracted images
             console.log('Writing exif data to preview files');
-            runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + tmpDir + '%f.jpg -overwrite_original --ext jpg ' + dir);
+            runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
 
             console.log('Stripping exif data, which can cause some issues');
-            runCommand('exiftool -geotag= ' + tmpDir + '*.jpg');
+            runCommand('exiftool -geotag= -overwrite_original ' + escapedTmp + '*.jpg');
         
             // Fix orientation of vertical images
             console.log('Auto rotating preview images');
-            runCommand('exifautotran ' + tmpDir + '*.jpg');
+            runCommand('exifautotran ' + escapedTmp + '*.jpg');
         
             // Resizing doesn't seem to have an impact on image load but causes long delays on boot
             console.log('Generating thumbnails from full-size previews');
-            runCommand('vipsthumbnail ' + tmpDir + '*.jpg -s 700');
+            runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
         } else {
             console.log("Didn't find any files in", dir);
         }
@@ -199,15 +219,19 @@ function extractPreviews() {
 }
 
 function runCommand(command) {
-    execSync(command, (err, stdout, stderr) => {
-        if (err) {
-            console.error(err);
-            process.exit(1);
-        }
-        
-        console.log(`${stdout}`);
-        console.log(`${stderr}`);
-    });
+    try {
+        execSync(command, (err, stdout, stderr) => {
+            if (err) {
+                console.error(err);
+                process.exit(1);
+            }
+            
+            console.log(`${stdout}`);
+            console.log(`${stderr}`);
+        });
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 function getMetadata() {
@@ -227,8 +251,14 @@ function getMetadata() {
 function generateSets(data) {
     const sets = {};
 
+    // Filter out non-raw files
+    const filtered = data.data.filter(f => {
+        const ext = path.extname(f.SourceFile).toLowerCase();
+        return extensionList.filter(s => s.includes(ext)).length !== 0;
+    });
+
     // Sort files in ascending order
-    const files = data.data.sort((a, b) => {
+    const files = filtered.sort((a, b) => {
         var x = a.SourceFile.toLowerCase();
         var y = b.SourceFile.toLowerCase();
         if (x < y) {return -1;}

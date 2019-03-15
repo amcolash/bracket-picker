@@ -23,7 +23,7 @@ COPY package.json package-lock.json ./
 # Install deps
 RUN npm ci
 
-# Copy only react source code (to keep cache alive if nothing changed here)
+# Copy source code
 COPY ./app/ ./app
 COPY index.js ./
 
