@@ -112,6 +112,8 @@ function getDirTree(directory) {
     nodedir.subdirs(directory, function(err, paths) {
         if (err) throw err;
 
+        baseDir = path.dirname(directory);
+
         // make dir tree from based off of: https://stackoverflow.com/a/44681235/2303432
         function insert(children = [], [head, ...tail]) {
             let child = children.find(child => child.name === head);
@@ -120,14 +122,22 @@ function getDirTree(directory) {
             return children;
         }
 
-        baseDir = path.dirname(directory);
-
         // The below prepends '/', filters dirs, splits by '/' and then makes nested objects
         dirs = paths
-            .map(path => { return '/' + (baseDir !== '.' ? path.replace(baseDir, '') : path) })
+            .map(path => { return baseDir !== '.' ? path.replace(baseDir, '') : path })
             .filter(path => { return !path.match(/\.git|app|node_modules|moved/) })
             .map(path => path.split('/').slice(1))
             .reduce((children, path) => insert(children, path), []);
+
+        function recurse(path, parent) {
+            const name = parent + '/' + path.name;
+            path.useful = isDirUseful(name);
+            if (path.children) {
+                path.children.forEach(child => recurse(child, name));
+            }
+        }
+
+        recurse(dirs[0], baseDir);
 
         // Run a batch extract of all folders in the root directory
         console.log('Running batch extract on all folders in root directory:', directory);
@@ -150,6 +160,22 @@ function getDirTree(directory) {
     });
 }
 
+function isDirUseful(dir) {
+    const files = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (var i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.isDirectory()) continue;
+
+        const ext = path.extname(file.name).toLowerCase().trim();
+        if (ext.length === 0 || extensionList.filter(s => s.includes(ext)).length === 0) continue;
+
+        return true;
+    }
+
+    return false;
+}
+
 function extractPreviews() {
     var modified = false;
 
@@ -158,8 +184,8 @@ function extractPreviews() {
         const file = files[i];
         if (file.isDirectory()) continue;
 
-        const ext = path.extname(file.name).toLowerCase();
-        if (extensionList.filter(s => s.includes(ext)).length === 0) continue;
+        const ext = path.extname(file.name).toLowerCase().trim();
+        if (ext.length === 0 || extensionList.filter(s => s.includes(ext)).length === 0) continue;
 
         const fileNoExt = path.basename(file.name, path.extname(file.name));
         const tmpFile = tmpDir + fileNoExt + '.jpg';

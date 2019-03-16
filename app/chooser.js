@@ -13,9 +13,21 @@ window.onload = () => {
     });
 };
 
+// Used for sorting
+const months = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+
 function recursive(path, el, name) {
     if (Array.isArray(path)) {
-        path = path.sort();
+
+        // Sort by month names (if present), fall back to normal sorting
+        path = path.sort((a, b) => {
+            const indexA = months.indexOf(a.name);
+            const indexB = months.indexOf(b.name);
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            else return a.name - b.name;
+        });
+
         for (var i = 0; i < path.length; i++) {
             recursive(path[i], el, name);
         }
@@ -26,15 +38,23 @@ function recursive(path, el, name) {
     var dir;
     if (path.name.length > 0) {
         dir = document.createElement('div');
-        dir.classList = 'dir' + (el.classList.contains('dir') ? ' nested' : '');
+        dir.classList = 'dir' + (el.classList.contains('dir') ? ' nested' : ' root');
         el.appendChild(dir);
     }
     
     const file = document.createElement('div');
-    file.addEventListener('click', (e) => { e.stopPropagation(); chooseDir(file) });
+    file.classList.add('file');
+
     const isNested = name.length !== 0;
-    file.className = 'hover';
     file.filePath = name + (isNested ? '/' : '') + path.name;
+
+    if (path.useful) {
+        file.addEventListener('click', (e) => { e.stopPropagation(); chooseDir(file) });
+        file.classList.add('hover');
+    } else {
+        file.classList.add('disabled');
+        if (isNested) file.classList.add('hidden');
+    }
 
     const icon = document.createElement('i');
     icon.setAttribute('data-feather', 'corner-down-right');
