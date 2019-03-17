@@ -111,7 +111,7 @@ function setTmp(tmp) {
 function getDirTree(directory) {
     nodedir.subdirs(directory, function(err, paths) {
         if (err) throw err;
-
+        
         baseDir = path.dirname(directory);
 
         // make dir tree from based off of: https://stackoverflow.com/a/44681235/2303432
@@ -124,25 +124,32 @@ function getDirTree(directory) {
 
         // The below prepends '/', filters dirs, splits by '/' and then makes nested objects
         dirs = paths
-            .map(path => { return baseDir !== '.' ? path.replace(baseDir, '') : path })
             .filter(path => { return !path.match(/\.git|app|node_modules|moved/) })
             .map(path => path.split('/').slice(1))
             .reduce((children, path) => insert(children, path), []);
 
-        function recurse(path, parent) {
-            const name = parent + '/' + path.name;
-            path.useful = isDirUseful(name);
-            if (path.children) {
-                path.children.forEach(child => recurse(child, name));
+        function recurse(p, parent) {
+            const name = parent + '/' + p.name;
+
+            // Only recurse through paths that actually matter
+            if (name.indexOf(baseDir + '/' + path.basename(directory)) !== -1) {
+                p.useful = isDirUseful(name);
+            } else {
+                p.useful = false;
+            }
+            
+            if (p.children) {
+                p.children.forEach(child => recurse(child, name));
             }
         }
-
-        recurse(dirs[0], baseDir);
+        
+        recurse(dirs[0], '');
 
         // Run a batch extract of all folders in the root directory
         console.log('Running batch extract on all folders in root directory:', directory);
+        console.log('Base Dir is ', baseDir);
         console.log('---------------------------------------------------------------');
-        
+
         const batchPaths = paths.filter(path => { return !path.match(/\.git|app|node_modules|moved/) });
         batchPaths.push(directory);
         for (var i = 0; i < batchPaths.length; i++) {
@@ -168,7 +175,7 @@ function isDirUseful(dir) {
         if (file.isDirectory()) continue;
 
         const ext = path.extname(file.name).toLowerCase().trim();
-        if (ext.length === 0 || extensionList.filter(s => s.includes(ext)).length === 0) continue;
+        if (ext.length === 0 || extensionList.filter(s => s.endsWith(ext)).length === 0) continue;
 
         return true;
     }
@@ -249,7 +256,7 @@ function runCommand(command) {
         execSync(command, (err, stdout, stderr) => {
             if (err) {
                 console.error(err);
-                process.exit(1);
+                // process.exit(1);
             }
             
             console.log(`${stdout}`);
