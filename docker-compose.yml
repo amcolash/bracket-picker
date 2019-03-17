@@ -11,5 +11,7 @@ services:
     ports:
       - 8080:8080
     entrypoint: node /usr/src/app/index.js -d /photos
+    environment:
+      - VIPS_WARNING=false
     env_file:
       - .env
