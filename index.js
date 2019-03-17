@@ -9,6 +9,9 @@ const ep = new exiftool.ExiftoolProcess();
 
 const baseTmpDir = '/tmp/bracket-picker/';
 
+// Disable vips warnings to avoid lots of logs
+process.env.VIPS_WARNING = 'false';
+
 // List of raw extensions from https://en.wikipedia.org/wiki/Raw_image_format
 const extensionList = [
     ".3fr", ".ari", ".arw", ".srf", ".sr2", ".bay", ".cri", ".crw", ".cr2", ".cr3", ".cap", ".iiq", ".eip", ".dcs",
@@ -32,7 +35,7 @@ main();
 async function main() {
     checkUsage();
 
-    if (false) fs.emptyDirSync(baseTmpDir);
+    fs.emptyDirSync(baseTmpDir);
     fs.mkdirpSync(baseTmpDir);
 
     // Serve an entire dir
@@ -234,9 +237,6 @@ function extractPreviews() {
             console.log('Writing exif data to preview files');
             runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
 
-            console.log('Stripping exif data, which can cause some issues');
-            runCommand('exiftool -geotag= -overwrite_original ' + escapedTmp + '*.jpg');
-        
             // Fix orientation of vertical images
             console.log('Auto rotating preview images');
             runCommand('exifautotran ' + escapedTmp + '*.jpg');
