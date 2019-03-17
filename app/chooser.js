@@ -53,7 +53,7 @@ function recursive(path, el, name) {
             file.classList.add('hover');
         } else {
             file.classList.add('disabled');
-            if (isNested) file.classList.add('hidden');
+            if (path.children.length === 0) file.classList.add('hidden');
         }
     
         const icon = document.createElement('i');
