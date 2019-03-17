@@ -190,6 +190,8 @@ function isDirUseful(dir) {
 function extractPreviews() {
     var modified = false;
 
+    console.log('Checking files in ' + tmpDir);
+
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (var i = 0; i < files.length; i++) {
         const file = files[i];

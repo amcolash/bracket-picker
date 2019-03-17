@@ -6,6 +6,7 @@ services:
     container_name: bracket-picker
     restart: unless-stopped
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - ${PHOTO_DIR}:/photos
       - ./tmp:/tmp/bracket-picker
     ports:
