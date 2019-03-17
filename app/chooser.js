@@ -35,36 +35,37 @@ function recursive(path, el, name) {
         return;
     }
 
-    var dir;
-    if (path.name.length > 0) {
-        dir = document.createElement('div');
-        dir.classList = 'dir' + (el.classList.contains('dir') ? ' nested' : ' root');
-        el.appendChild(dir);
-    }
+    const filePath = name + (name.length !== 0 ? '/' : '') + path.name;
     
-    const file = document.createElement('div');
-    file.classList.add('file');
-
-    const isNested = name.length !== 0;
-    file.filePath = name + (isNested ? '/' : '') + path.name;
-
-    if (path.useful) {
-        file.addEventListener('click', (e) => { e.stopPropagation(); chooseDir(file) });
-        file.classList.add('hover');
-    } else {
-        file.classList.add('disabled');
-        if (isNested) file.classList.add('hidden');
+    if (('/' + name).indexOf(baseDir) !== -1) {
+        var dir = document.createElement('div');
+        const isNested = el.classList.contains('dir');
+        dir.classList = 'dir' + (isNested ? ' nested' : ' root');
+        el.appendChild(dir);
+        
+        const file = document.createElement('div');
+        file.classList.add('file');
+    
+        file.filePath = filePath;
+    
+        if (path.useful) {
+            file.addEventListener('click', (e) => { e.stopPropagation(); chooseDir(file) });
+            file.classList.add('hover');
+        } else {
+            file.classList.add('disabled');
+            if (isNested) file.classList.add('hidden');
+        }
+    
+        const icon = document.createElement('i');
+        icon.setAttribute('data-feather', 'corner-down-right');
+    
+        if (isNested) file.appendChild(icon);
+        file.innerHTML += path.name;
+        if (dir) dir.appendChild(file);
     }
-
-    const icon = document.createElement('i');
-    icon.setAttribute('data-feather', 'corner-down-right');
-
-    if (isNested) file.appendChild(icon);
-    file.innerHTML += path.name;
-    if (dir) dir.appendChild(file);
 
     if (path.children) {
-        recursive(path.children, dir || el, file.filePath);
+        recursive(path.children, dir || el, filePath);
     }
 }
 

@@ -132,7 +132,8 @@ function getDirTree(directory) {
             const name = parent + '/' + p.name;
 
             // Only recurse through paths that actually matter
-            if (name.indexOf(baseDir + '/' + path.basename(directory)) !== -1) {
+            const nameCheck = baseDir + (baseDir.length > 1 ? '/' : '') + path.basename(directory);
+            if (name.indexOf(nameCheck) !== -1) {
                 p.useful = isDirUseful(name);
             } else {
                 p.useful = false;
