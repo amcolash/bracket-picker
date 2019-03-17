@@ -6,8 +6,10 @@ services:
     container_name: bracket-picker
     restart: unless-stopped
     volumes:
-      - ./test2:/photos
+      - ${PHOTO_DIR}:/photos
       - ./tmp:/tmp/bracket-picker
     ports:
       - 8080:8080
     entrypoint: node /usr/src/app/index.js -d /photos
+    env_file:
+      - .env
