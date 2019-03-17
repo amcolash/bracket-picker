@@ -14,7 +14,7 @@ const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
     feather.replace();
-
+    
     // Disable context menu on touch, but keep for mouse right click
     window.oncontextmenu = (event) => {
         if (event.sourceCapabilities.firesTouchEvents) {
@@ -52,9 +52,9 @@ window.onload = () => {
 
     overlay.addEventListener('click', (e) => { hideOverlay(); });
 
-    image1.addEventListener('load', () => { file1.innerText = getInfo(currentSet[0]); section1.classList.remove('hidden'); });
-    image2.addEventListener('load', () => { file2.innerText = getInfo(currentSet[1]); section2.classList.remove('hidden'); });
-    image3.addEventListener('load', () => { file3.innerText = getInfo(currentSet[2]); section3.classList.remove('hidden'); });
+    image1.addEventListener('load', () => { file1.innerHTML = getInfo(currentSet[0]); section1.classList.remove('hidden'); feather.replace(); });
+    image2.addEventListener('load', () => { file2.innerHTML = getInfo(currentSet[1]); section2.classList.remove('hidden'); feather.replace(); });
+    image3.addEventListener('load', () => { file3.innerHTML = getInfo(currentSet[2]); section3.classList.remove('hidden'); feather.replace(); });
     
     window.onkeydown = checkKey;
     window.onkeyup = () => lastKey = null;
@@ -228,8 +228,25 @@ function select(i) {
 }
 
 function getInfo(file) {
-    return file.FileName + '\nAperture: F' + file.Aperture + '\nISO: ' + file.ISO + '\nShutter Speed: ' + file.ShutterSpeed +
-        '\nFocal Length: ' + file.FocalLength + '\nBracket Value: ' + file.AEBBracketValue;
+    var info = "";
+    info += file.FileName;
+    info += '<br>Aperture: F' + file.Aperture;
+    info += '<br>ISO: ' + file.ISO + checkISO(file);
+    info += '<br>Shutter Speed: ' + file.ShutterSpeed + checkShutter(file);
+    info += '<br>Focal Length: ' + file.FocalLength;
+    info += '<br>Bracket Value: ' + file.AEBBracketValue;
+    return info;
+}
+
+function checkISO(file) {
+    const iso = Number.parseInt(file.ISO);
+    return iso > 1600 ? '<i data-feather="alert-triangle" class="warn"></i>' : '';
+}
+
+function checkShutter(file) {
+    const shutterInverse = 1 / eval(file.ShutterSpeed);
+    const focalLength = Number.parseInt(file.FocalLength.replace('mm', '').trim());
+    return shutterInverse < focalLength ? '<i data-feather="alert-triangle" class="warn"></i>' : '';
 }
 
 function preview(i) {
@@ -247,7 +264,8 @@ function preview(i) {
     previewIndex = mod(i, currentSet.length);
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
-    overlayFile.innerText = getInfo(currentSet[previewIndex]);
+    overlayFile.innerHTML = getInfo(currentSet[previewIndex]);
+    feather.replace();
 
     previewImg.classList.toggle('selected', !!selected[currentSet[previewIndex].SourceFile]);
 
