@@ -35,7 +35,7 @@ main();
 async function main() {
     checkUsage();
 
-    fs.emptyDirSync(baseTmpDir);
+    // fs.emptyDirSync(baseTmpDir);
     fs.mkdirpSync(baseTmpDir);
 
     // Serve an entire dir
