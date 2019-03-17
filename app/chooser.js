@@ -6,7 +6,7 @@ window.onload = () => {
         const dirs = data.data.dirs;
         baseDir = data.data.baseDir;
         dirList.style.display = 'block';
-        recursive(dirs, dirList, '');
+        recursive(dirs, dirList, '/');
         feather.replace();
     }).catch((err) => {
         console.error(err);
@@ -35,9 +35,9 @@ function recursive(path, el, name) {
         return;
     }
 
-    const filePath = name + (name.length !== 0 ? '/' : '') + path.name;
+    const filePath = name + (name.length > 1 ? '/' : '') + path.name;
     
-    if (('/' + name).indexOf(baseDir) !== -1) {
+    if (name.indexOf(baseDir) !== -1) {
         var dir = document.createElement('div');
         const isNested = el.classList.contains('dir');
         dir.classList = 'dir' + (isNested ? ' nested' : ' root');
@@ -73,8 +73,6 @@ function chooseDir(dir) {
     if (loading) return;
     loading = true;
     
-    const path = baseDir + '/' + dir.filePath;
-    
     const spinner = document.createElement('div');
     spinner.className = 'lds-dual-ring';
     
@@ -86,7 +84,7 @@ function chooseDir(dir) {
         files[i].classList.add('noHover');
     }
 
-    axios.post('/dir', { dir: path }).then(response => {
+    axios.post('/dir', { dir: dir.filePath }).then(response => {
         window.location.pathname = '';
     }).catch(err => {
         console.error(err);
