@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
 const express = require('express');
 const fs = require('fs-extra');
 const path = require('path');
@@ -35,25 +35,27 @@ main();
 async function main() {
     checkUsage();
 
-    // fs.emptyDirSync(baseTmpDir);
-    fs.mkdirpSync(baseTmpDir);
+    // console.log('WIPING TMP DIR!');
+    // await fs.emptyDir(baseTmpDir);
+
+    await fs.mkdirp(baseTmpDir);
+
+    // Start server
+    initServer();
+    console.log(`Running on port ${PORT}`);
 
     // Serve an entire dir
     if (process.argv[2] === '-d') {
         const rootDir = resolveDir(process.argv[3]);
-        if (!fs.exists(rootDir)) {
+        if (await !fs.exists(rootDir)) {
             console.error(dir + ' does not exist');
             process.exit(1);
         }
         
         getDirTree(rootDir);
-        initServer();
-        console.log(`Running on port ${PORT}`);
     } else {
         // Only serving a single directory
         setDir(process.argv[2]);
-        initServer();
-        console.log(`Running on port ${PORT}`);
     }
 }
 
@@ -91,7 +93,7 @@ async function setDir(newDir, res) {
     dir = resolveDir(newDir);
     console.log('setting base dir to', dir);
     
-    if (!fs.existsSync(dir)) {
+    if (await !fs.exists(dir)) {
         console.error(dir + ' does not exist');
         process.exit(1);
     }
@@ -111,8 +113,8 @@ function setTmp(tmp) {
     app.use('/previews', express.static(tmpDir, { maxage: '2h' }));
 }
 
-function getDirTree(directory) {
-    nodedir.subdirs(directory, function(err, paths) {
+async function getDirTree(directory) {
+    nodedir.subdirs(directory, async function(err, paths) {
         if (err) throw err;
         
         baseDir = path.dirname(directory);
@@ -131,23 +133,23 @@ function getDirTree(directory) {
             .map(path => path.split('/').slice(1))
             .reduce((children, path) => insert(children, path), []);
 
-        function recurse(p, parent) {
+        async function recurse(p, parent) {
             const name = parent + '/' + p.name;
 
             // Only recurse through paths that actually matter
             const nameCheck = baseDir + (baseDir.length > 1 ? '/' : '') + path.basename(directory);
             if (name.indexOf(nameCheck) !== -1) {
-                p.useful = isDirUseful(name);
+                p.useful = await isDirUseful(name);
             } else {
                 p.useful = false;
             }
             
             if (p.children) {
-                p.children.forEach(child => recurse(child, name));
+                p.children.forEach(async child => { await recurse(child, name); });
             }
         }
         
-        recurse(dirs[0], '');
+        await recurse(dirs[0], '');
 
         // Run a batch extract of all folders in the root directory
         console.log('Running batch extract on all folders in root directory:', directory);
@@ -159,7 +161,7 @@ function getDirTree(directory) {
         for (var i = 0; i < batchPaths.length; i++) {
             dir = resolveDir(batchPaths[i]);
             tmpDir = resolveDir(baseTmpDir + path.basename(dir));
-            extractPreviews();
+            await extractPreviews();
         }
 
         console.log('---------------------------------------------------------------');
@@ -171,8 +173,8 @@ function getDirTree(directory) {
     });
 }
 
-function isDirUseful(dir) {
-    const files = fs.readdirSync(dir, { withFileTypes: true });
+async function isDirUseful(dir) {
+    const files = await fs.readdir(dir, { withFileTypes: true });
 
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
@@ -187,12 +189,12 @@ function isDirUseful(dir) {
     return false;
 }
 
-function extractPreviews() {
+async function extractPreviews() {
     var modified = false;
 
     console.log('Checking files in ' + tmpDir);
 
-    const files = fs.readdirSync(dir, { withFileTypes: true });
+    const files = await fs.readdir(dir, { withFileTypes: true });
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
         if (file.isDirectory()) continue;
@@ -205,8 +207,8 @@ function extractPreviews() {
         const tmpThumbFile = tmpDir + 'tn_' + fileNoExt + '.jpg';
 
         try {
-            const fileExists = fs.existsSync(tmpFile);
-            const thumbExists = fs.existsSync(tmpThumbFile);
+            const fileExists = await fs.exists(tmpFile);
+            const thumbExists = await fs.exists(tmpThumbFile);
             if (!fileExists || !thumbExists) {
                 if (!fileExists) console.log(tmpFile + ' does not exist');
                 if (!thumbExists) console.log(tmpThumbFile + ' does not exist');
@@ -220,32 +222,33 @@ function extractPreviews() {
 
     if (modified) {
         console.log('Cleaning tmp files');
-        fs.emptyDirSync(tmpDir);
-        fs.mkdirpSync(tmpDir);
+        await fs.emptyDir(tmpDir);
+        await fs.mkdirp(tmpDir);
 
         const escapedDir = dir.replace(/\ /g, '\\\ ');
         const escapedTmp = tmpDir.replace(/\ /g, '\\\ ');
         
         // Extract images to tmpDir
         console.log('Extracting raw previews');
-        runCommand('exiftool -b -previewimage -w ' + escapedTmp + '%f.jpg --ext jpg ' + escapedDir);
+        await runCommand('exiftool -b -previewimage -w ' + escapedTmp + '%f.jpg --ext jpg ' + escapedDir);
 
-        const dirFiles = fs.readdirSync(tmpDir, { withFileTypes: true });
+        console.log('Checking tmp dir');
+        const dirFiles = await fs.readdir(tmpDir, { withFileTypes: true });
         const filtered = dirFiles.filter(path => { return path.isFile() && path.name.indexOf('.jpg') !== -1 });;
 
         // Only deal with dirs that contain extracted jpeg files
         if (filtered.length > 0) {
             // Write tags to extracted images
             console.log('Writing exif data to preview files');
-            runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
+            await runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
 
             // Fix orientation of vertical images
             console.log('Auto rotating preview images');
-            runCommand('exifautotran ' + escapedTmp + '*.jpg');
+            await runCommand('exifautotran ' + escapedTmp + '*.jpg');
         
             // Resizing doesn't seem to have an impact on image load but causes long delays on boot
             console.log('Generating thumbnails from full-size previews');
-            runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
+            await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
         } else {
             console.log("Didn't find any files in", dir);
         }
@@ -254,20 +257,33 @@ function extractPreviews() {
     }
 }
 
-function runCommand(command) {
+async function runCommand(command) {
     try {
-        execSync(command, (err, stdout, stderr) => {
-            if (err) {
-                console.error(err);
-                // process.exit(1);
-            }
-            
-            console.log(`${stdout}`);
-            console.log(`${stderr}`);
-        });
+        const c = await awaitExec(command);
+
+        // console.log(`${c.stdout}`);
+        // console.log(`${c.stderr}`);
     } catch (err) {
         console.error(err);
     }
+}
+
+// Code from: https://github.com/hanford/await-exec
+function awaitExec (command, options = { log: false, cwd: process.cwd() }) {
+    if (options.log) console.log(command);
+  
+    return new Promise((done, failed) => {
+        exec(command, { ...options }, (err, stdout, stderr) => {
+            if (err) {
+                err.stdout = stdout;
+                err.stderr = stderr;
+                failed(err);
+                return;
+            }
+    
+            done({ stdout, stderr });
+        });
+    });
 }
 
 function getMetadata() {
@@ -363,7 +379,7 @@ async function move(req, res) {
     const files = req.body.files;
     
     const dest = dir + 'moved/';
-    fs.mkdirpSync(dest);
+    await fs.mkdirp(dest);
 
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
@@ -371,7 +387,7 @@ async function move(req, res) {
         console.log('moving', file, 'to', fileDest);
 
         try {
-            fs.moveSync(file, fileDest);
+            await fs.move(file, fileDest);
         } catch (err) {
             console.error(err);
         }
@@ -383,13 +399,13 @@ async function move(req, res) {
 
 async function undo(req, res) {
     try {
-        const files = fs.readdirSync(dir + 'moved/');
+        const files = await fs.readdir(dir + 'moved/');
         for (var i = 0; i < files.length; i++) {
             const file = dir + 'moved/' + files[i];
             const fileDest = dir + path.basename(files[i]);
 
             console.log('moving', file, 'to', fileDest);
-            fs.moveSync(file, fileDest);
+            await fs.move(file, fileDest);
         }
     } catch (err) {
         console.error(err);
