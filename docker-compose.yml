@@ -11,6 +11,6 @@ services:
       - ./tmp:/tmp/bracket-picker
     ports:
       - 8080:8080
-    entrypoint: node /usr/src/app/index.js -d /photos
+    entrypoint: node /usr/src/app/index.js /photos
     env_file:
       - .env
