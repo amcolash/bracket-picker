@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Bracker Picker File Chooser</title>
+    <title>Bracket Picker - Loading</title>
 
+    <link rel="stylesheet" href="loading.css">
     <link rel="stylesheet" href="spinner.css">
-    <link rel="stylesheet" href="chooser.css">
 </head>
 <body>
     <div id="app">
-        <div id="refreshContainer">
-            <i id="refresh" data-feather="rotate-cw"></i>
+        <div class="wrapper">
+            <div class="lds-dual-ring"></div>
+            <h3 id="state">&nbsp;</h3>
+            <h4 id="progress">&nbsp;</h4>
         </div>
-        <div id="dirList"></div>
     </div>
-    <script src="chooser.js"></script>
+
+    <script src="loading.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
 </body>
 </html>

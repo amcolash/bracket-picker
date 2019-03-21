@@ -21,9 +21,10 @@ body {
 }
 
 #dirs {
+    display: none;
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0.75em;
+    left: 0.75em;
 }
 
 #dirs a {
@@ -31,7 +32,6 @@ body {
 }
 
 #dirs svg {
-    margin: 0.75em;
     padding: 0.75em;
     border-radius: 0.1em;
     transition: background-color 0.3s;

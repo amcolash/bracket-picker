@@ -22,8 +22,11 @@ const extensionList = [
 var dir;
 var tmpDir;
 var baseDir;
+var rootDir;
 var sets = {};
 var dirs = {};
+var singleDir = false;
+var state = { text: 'Initializing', progress: '' };
 
 const PORT = 8080;
 const app = express();
@@ -45,24 +48,24 @@ async function main() {
     console.log(`Running on port ${PORT}`);
 
     // Serve an entire dir
-    if (process.argv[2] === '-d') {
-        const rootDir = resolveDir(process.argv[3]);
-        if (await !fs.exists(rootDir)) {
-            console.error(dir + ' does not exist');
-            process.exit(1);
-        }
-        
+    checkUsage();
+
+    rootDir = resolveDir(process.argv[2]);
+    try {
+        // Make sure the directory is valid
+        await fs.stat(rootDir);
+
+        // Look through directories
         getDirTree(rootDir);
-    } else {
-        // Only serving a single directory
-        setDir(process.argv[2]);
+    } catch (e) {
+        console.error('Error: ' + rootDir + ' does not exist');
+        process.exit(1);
     }
 }
 
 function checkUsage() {
-    // Check usage
-    if (process.argv.length < 3 || process.argv.length > 4) {
-        console.error("Error: Usage is '" + path.basename(__filename) + " [raw_dir]' or '" + path.basename(__filename) + " -d [root_photo_dir]'");
+    if (process.argv.length !== 3) {
+        console.error("Error: Usage is '" + path.basename(__filename) + " photo_dir'");
         process.exit(1);
     }
 }
@@ -71,16 +74,18 @@ function initServer() {
     // Disable cache since serving multiple pages from the '/' route
     app.get('/', (req, res) => {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-        res.sendFile(__dirname + '/app/' + (tmpDir ? 'index.html' : 'chooser.html'))
+        res.sendFile(__dirname + '/app/' + (state.text === 'Complete' ? (tmpDir ? 'index.html' : 'chooser.html') : 'loading.html'));
     });
     app.use('/', express.static(__dirname + '/app'));
 
-    app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir }));
+    app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir, singleDir: singleDir }));
     app.get('/data', (req, res) => res.send(sets));
+    app.get('/state', (req, res) => res.send(state));
     
     app.post('/move', (req, res) => move(req, res));
     app.post('/undo', (req, res) => undo(req, res));
     app.post('/dir', (req, res) => setDir(req.body.dir, res));
+    app.post('/refresh', (req, res) => { res.sendStatus(200); getDirTree(rootDir); });
 }
 
 function resolveDir(dir) {
@@ -100,9 +105,11 @@ async function setDir(newDir, res) {
 
     setTmp(path.basename(dir) + '/');
 
+    setState('Running batch extraction', '');
     extractPreviews();
     sets = await getMetadata();
 
+    setState('Complete');
     if (res) res.sendStatus(200);
 }
 
@@ -114,18 +121,22 @@ function setTmp(tmp) {
 }
 
 async function getDirTree(directory) {
+    setState('Getting directory tree');
     nodedir.subdirs(directory, async function(err, paths) {
         if (err) throw err;
-        
+
         baseDir = path.dirname(directory);
 
         // make dir tree from based off of: https://stackoverflow.com/a/44681235/2303432
         function insert(children = [], [head, ...tail]) {
             let child = children.find(child => child.name === head);
-            if (!child) children.push(child = {name: head, children: []});
+            if (!child && head) children.push(child = {name: head, children: []});
             if (tail.length > 0) insert(child.children, tail);
             return children;
         }
+
+        // Make sure the base directory is included
+        paths.push(directory);
 
         // The below prepends '/', filters dirs, splits by '/' and then makes nested objects
         dirs = paths
@@ -156,9 +167,15 @@ async function getDirTree(directory) {
         console.log('Base Dir is ', baseDir);
         console.log('---------------------------------------------------------------');
 
-        const batchPaths = paths.filter(path => { return !path.match(/\.git|app|node_modules|moved/) });
-        batchPaths.push(directory);
+        const batchPaths = await filterAsync(paths, async path => {
+            const useful = await isDirUseful(path);
+            const matches = path.match(/\.git|app|node_modules|moved/);
+
+            return useful && !matches;
+        });
+
         for (var i = 0; i < batchPaths.length; i++) {
+            setState('Running batch extraction', (i + 1) + ' / ' + batchPaths.length);
             dir = resolveDir(batchPaths[i]);
             tmpDir = resolveDir(baseTmpDir + path.basename(dir));
             await extractPreviews();
@@ -167,25 +184,43 @@ async function getDirTree(directory) {
         console.log('---------------------------------------------------------------');
         console.log('Batch process done');
 
-        // Cleanup
-        dir = undefined;
-        tmpDir = undefined;
+        if (batchPaths.length === 1) {
+            // If there is only a single directory, set it up here
+            dir = directory;
+            setTmp(path.basename(dir) + '/');
+            sets = await getMetadata();
+            
+            singleDir = true;
+        } else {
+            // Cleanup
+            dir = undefined;
+            tmpDir = undefined;
+            singleDir = false;
+        }
+
+        setState('Complete');
     });
+}
+
+// Async filter code from https://stackoverflow.com/a/46842181/2303432
+async function filterAsync(arr, callback) {
+    const fail = Symbol()
+    return (await Promise.all(arr.map(async item => (await callback(item)) ? item : fail))).filter(i=>i!==fail)
 }
 
 async function isDirUseful(dir) {
     const files = await fs.readdir(dir, { withFileTypes: true });
-
+    
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
         if (file.isDirectory()) continue;
-
+        
         const ext = path.extname(file.name).toLowerCase().trim();
         if (ext.length === 0 || extensionList.filter(s => s.endsWith(ext)).length === 0) continue;
-
+        
         return true;
     }
-
+    
     return false;
 }
 
@@ -229,7 +264,8 @@ async function extractPreviews() {
         const escapedTmp = tmpDir.replace(/\ /g, '\\\ ');
         
         // Extract images to tmpDir
-        console.log('Extracting raw previews');
+
+        setState('Extracting raw previews');
         await runCommand('exiftool -b -previewimage -w ' + escapedTmp + '%f.jpg --ext jpg ' + escapedDir);
 
         console.log('Checking tmp dir');
@@ -239,15 +275,15 @@ async function extractPreviews() {
         // Only deal with dirs that contain extracted jpeg files
         if (filtered.length > 0) {
             // Write tags to extracted images
-            console.log('Writing exif data to preview files');
+            setState('Writing exif data to preview files');
             await runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
 
             // Fix orientation of vertical images
-            console.log('Auto rotating preview images');
+            setState('Auto rotating preview images');
             await runCommand('exifautotran ' + escapedTmp + '*.jpg');
         
             // Resizing doesn't seem to have an impact on image load but causes long delays on boot
-            console.log('Generating thumbnails from full-size previews');
+            setState('Generating thumbnails from full-size previews');
             await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
         } else {
             console.log("Didn't find any files in", dir);
@@ -255,6 +291,13 @@ async function extractPreviews() {
     } else {
         console.log('Files up to date in ' + tmpDir + ', not re-extracting');
     }
+}
+
+function setState(text, progress) {
+    state.text = text;
+    if (progress) state.progress = progress;
+
+    console.log(text);
 }
 
 async function runCommand(command) {
@@ -287,7 +330,7 @@ function awaitExec (command, options = { log: false, cwd: process.cwd() }) {
 }
 
 function getMetadata() {
-    console.log('Getting metadata');
+    setState('Getting Metadata');
     return new Promise(resolve => {
         ep
             .open()

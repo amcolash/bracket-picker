@@ -2,20 +2,26 @@ var loading = false;
 var baseDir;
 
 window.onload = () => {
-    axios.get('/dirs').then(data => {
-        const dirs = data.data.dirs;
-        baseDir = data.data.baseDir;
-        dirList.style.display = 'block';
+    axios.get('/dirs').then(response => {
+        const dirs = response.data.dirs;
+        baseDir = response.data.baseDir;
+        app.style.opacity = '1';
         recursive(dirs, dirList, '/');
         feather.replace();
     }).catch((err) => {
         console.error(err);
     });
+
+    refreshContainer.addEventListener('click', () => {
+        axios.post('/refresh').then(response => {
+            window.location.pathname = '/';
+        });
+    });
 };
 
 // Used for sorting
-const months = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
+const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
 
 function recursive(path, el, name) {
     if (Array.isArray(path)) {

@@ -13,6 +13,12 @@ var lastKey;
 const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
+    axios.get('/dirs').then(response => {
+        if (!response.data.singleDir) {
+            dirs.style.display = 'block';
+        }
+    });
+
     feather.replace();
     
     // Disable context menu on touch, but keep for mouse right click
@@ -228,7 +234,7 @@ function select(i) {
 }
 
 function getInfo(file) {
-    var info = "";
+    var info = '';
     info += file.FileName;
     info += '<br>Aperture: F' + file.Aperture;
     info += '<br>ISO: ' + file.ISO + checkISO(file);

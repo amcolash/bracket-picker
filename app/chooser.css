@@ -11,10 +11,28 @@ body {
 #app {
     margin: 2em;
     height: calc(100vh - 4em);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+#refreshContainer {
+    position: absolute;
+    top: 0.75em;
+    right: 0.75em;
+    cursor: pointer;
+}
+
+#refreshContainer svg {
+    padding: 0.75em;
+    border-radius: 0.15em;
+    transition: background-color 0.3s;
+}
+
+#refreshContainer svg:hover {
+    background-color: #555;
 }
 
 #dirList {
-    display: none;
     width: fit-content;
     max-height: calc(100vh - 6em);
     overflow-y: auto;
