@@ -225,6 +225,16 @@ function select(i) {
     move.disabled = numFiles === 0;
     move.innerHTML = 'Move ' + (numFiles > 0 ? numFiles : '') + ' Files';
 
+    // Set up "Are you sure you want to leave" prompt if there are selected files
+    if (numFiles === 0) {
+        window.onbeforeunload = null;
+    } else {
+        window.onbeforeunload = e => {
+            e.preventDefault();
+            return '';
+        };
+    }
+
     // Toggle based on state, the !! means convert from truthy to boolean
     section1.classList.toggle('selected', isSelected(0));
     section2.classList.toggle('selected', isSelected(1));
