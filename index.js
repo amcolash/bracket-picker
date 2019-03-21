@@ -295,7 +295,7 @@ async function extractPreviews() {
 
 function setState(text, progress) {
     state.text = text;
-    if (progress) state.progress = progress;
+    if (progress !== undefined) state.progress = progress;
 
     console.log(text);
 }
