@@ -91,7 +91,7 @@ function chooseDir(dir) {
     }
 
     axios.post('/dir', { dir: dir.filePath }).then(response => {
-        window.location.pathname = '';
+        window.location.pathname = '/';
     }).catch(err => {
         console.error(err);
     });

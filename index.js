@@ -100,17 +100,18 @@ async function setDir(newDir, res) {
     
     if (await !fs.exists(dir)) {
         console.error(dir + ' does not exist');
-        process.exit(1);
+        if (res) res.sendStatus(404);
+        return;
     }
-
-    setTmp(path.basename(dir) + '/');
-
+    
     setState('Running batch extraction', '');
+    if (res) res.sendStatus(200);
+    
+    setTmp(path.basename(dir) + '/');
     extractPreviews();
     sets = await getMetadata();
 
     setState('Complete');
-    if (res) res.sendStatus(200);
 }
 
 function setTmp(tmp) {
