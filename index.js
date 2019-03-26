@@ -438,6 +438,8 @@ async function move(req, res) {
     }
     
     sets = await getMetadata();
+    
+    setState('Complete');
     res.sendStatus(200);
 }
 
@@ -457,6 +459,7 @@ async function undo(req, res) {
     
     extractPreviews();
     sets = await getMetadata();
-
+    
+    setState('Complete');
     res.sendStatus(200);
 }
