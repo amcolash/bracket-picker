@@ -67,32 +67,38 @@
             </div>
         </div>
         <div id="overlay">
-        <i data-feather="x"></i>
-        <div id="previewContainer">
-            <div id="imageContainer">
-                <i id="leftArrow" data-feather="arrow-left"></i>
-                <img id="previewImg" src="">
-                <i id="rightArrow" data-feather="arrow-right"></i>
+            <div class="top">
+                <a id="download" href="" download>
+                    <i data-feather="download"></i>
+                </a>
+                <i id="info" data-feather="info"></i>
+                <i data-feather="x"></i>
             </div>
-            <br>
-            <div class="pager">
-                <div>
-                    <span class="hidden dots" id="pager1">●</span>
-                    <span class="hidden dots" id="pager2">●</span>
-                    <span class="hidden dots" id="pager3">●</span>
+            <div id="previewContainer">
+                <div id="imageContainer">
+                    <i id="leftArrow" data-feather="arrow-left"></i>
+                    <img id="previewImg" src="">
+                    <i id="rightArrow" data-feather="arrow-right"></i>
                 </div>
-                <span id="pagerNumber"></span>
-                <div id="fileInfo">
-                    <span id="overlayFile"></span>
+                <br>
+                <div class="pager">
+                    <div>
+                        <span class="hidden dots" id="pager1">●</span>
+                        <span class="hidden dots" id="pager2">●</span>
+                        <span class="hidden dots" id="pager3">●</span>
+                    </div>
+                    <span id="pagerNumber"></span>
+                    <div id="fileInfo">
+                        <span id="overlayFile"></span>
+                    </div>
                 </div>
             </div>
-        </div>
     </div>
     </div>
 
     <script src="app.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
+    <script src="lib/axios.min.js"></script>
+    <script src="lib/feather.min.js"></script>
+    <script src="lib/hammer.min.js"></script>
 </body>
 </html>

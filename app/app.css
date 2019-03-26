@@ -160,11 +160,20 @@ body {
     box-shadow: 0 0 4em rgba(255, 0, 0, 0.75);
 }
 
-#overlay .feather-x {
-    cursor: pointer;
+#overlay .top {
     position: absolute;
     top: 0.75em;
     right: 0.75em;
+}
+
+#overlay .top svg {
+    cursor: pointer;
+    margin: 0.35em;
+}
+
+#download {
+    text-decoration: none;
+    color: white;
 }
 
 #imageContainer {

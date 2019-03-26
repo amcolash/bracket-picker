@@ -43,20 +43,22 @@ window.onload = () => {
     image2.addEventListener('click', () => select(1));
     image3.addEventListener('click', () => select(2));
     
-    previewImg.addEventListener('click', (e) => { e.stopPropagation(); select(previewIndex) });
+    previewImg.addEventListener('click', e => { e.stopPropagation(); select(previewIndex) });
 
     preview1.addEventListener('click', () => preview(0));
     preview2.addEventListener('click', () => preview(1));
     preview3.addEventListener('click', () => preview(2));
 
-    pager1.addEventListener('click', (e) => { e.stopPropagation(); preview(0); });
-    pager2.addEventListener('click', (e) => { e.stopPropagation(); preview(1); });
-    pager3.addEventListener('click', (e) => { e.stopPropagation(); preview(2); });
+    pager1.addEventListener('click', e => { e.stopPropagation(); preview(0); });
+    pager2.addEventListener('click', e => { e.stopPropagation(); preview(1); });
+    pager3.addEventListener('click', e => { e.stopPropagation(); preview(2); });
 
-    leftArrow.addEventListener('click', (e) => { e.stopPropagation(); preview(previewIndex - 1); });
-    rightArrow.addEventListener('click', (e) => { e.stopPropagation(); preview(previewIndex + 1); });
+    leftArrow.addEventListener('click', e => { e.stopPropagation(); preview(previewIndex - 1); });
+    rightArrow.addEventListener('click', e => { e.stopPropagation(); preview(previewIndex + 1); });
 
-    overlay.addEventListener('click', (e) => { hideOverlay(); });
+    overlay.addEventListener('click', e => { hideOverlay(); });
+    info.addEventListener('click', e => { fileInfo.classList.toggle('invisible'); e.stopPropagation(); });
+    download.addEventListener('click', e => e.stopPropagation());
 
     image1.addEventListener('load', () => { file1.innerHTML = getInfo(currentSet[0]); section1.classList.remove('hidden'); feather.replace(); });
     image2.addEventListener('load', () => { file2.innerHTML = getInfo(currentSet[1]); section2.classList.remove('hidden'); feather.replace(); });
@@ -136,7 +138,7 @@ function checkKey(e) {
         selectNone();
     } else if (e.keyCode == '27') { // esc
         hideOverlay();
-    } else if (e.keyCode == '32' || e.keyCode == '82') { // space, r
+    } else if ((e.keyCode == '32' || e.keyCode == '82') && !e.ctrlKey) { // space, r
         if (overlayShown()) {
             select(previewIndex);
         }
@@ -280,6 +282,7 @@ function preview(i) {
     previewIndex = mod(i, currentSet.length);
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
+    download.href = currentSet[previewIndex].PreviewFile;
     overlayFile.innerHTML = getInfo(currentSet[previewIndex]);
     feather.replace();
 
