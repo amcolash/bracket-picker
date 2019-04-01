@@ -141,6 +141,8 @@ function checkKey(e) {
     } else if ((e.keyCode == '32' || e.keyCode == '82') && !e.ctrlKey) { // space, r
         if (overlayShown()) {
             select(previewIndex);
+        } else {
+            select(0);
         }
     } else if (e.keyCode == '81') { // q
         preview(0);
@@ -164,6 +166,7 @@ function checkKey(e) {
 }
 
 function getData() {
+    window.onbeforeunload = null;
     axios.get('/data').then(data => {
         sets = data.data;
 
@@ -175,6 +178,7 @@ function getData() {
             totalSize += sets[keys[i]].length;
         }
 
+        move.disabled = false;
         update(mod(setIndex, setsLength));
     }).catch((err) => {
         console.error(err);
@@ -187,6 +191,7 @@ function showOverlay() {
     file2.parentElement.classList.add('invisible');
     file3.parentElement.classList.add('invisible');
     controls.classList.add('invisible');
+    chooser.classList.add('invisible');
 }
 
 function hideOverlay() {
@@ -195,6 +200,7 @@ function hideOverlay() {
     file2.parentElement.classList.remove('invisible');
     file3.parentElement.classList.remove('invisible');
     controls.classList.remove('invisible');
+    chooser.classList.remove('invisible');
 }
 
 function overlayShown() {
@@ -218,6 +224,8 @@ function isSelected(i) {
 }
 
 function select(i) {
+    if (move.disabled) return;
+    
     if (currentSet.length > i) {
         const file = currentSet[i].SourceFile;
         selected[file] = !selected[file];
@@ -268,6 +276,8 @@ function checkShutter(file) {
 }
 
 function preview(i) {
+    if (move.disabled) return;
+
     if (i < 0) {
         back.click();
         preview(currentSet.length - 1);
@@ -298,6 +308,8 @@ function preview(i) {
 }
 
 function update(i) {
+    if (move.disabled) return;
+
     setIndex = i;
 
     stats.innerText = 'Set: ' + (setIndex + 1) + ' / ' + setsLength + ', Total Files: ' + totalSize;
