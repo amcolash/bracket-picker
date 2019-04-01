@@ -31,7 +31,7 @@ function recursive(path, el, name) {
             const indexA = months.indexOf(a.name);
             const indexB = months.indexOf(b.name);
             if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-            else return a.name - b.name;
+            else return a.name.localeCompare(b.name);
         });
 
         for (var i = 0; i < path.length; i++) {
