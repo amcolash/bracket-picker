@@ -337,7 +337,7 @@ function getMetadata(forced) {
     return new Promise(async resolve => {
         try {
             await fs.readdir(dir + '/moved', (err, files) => {
-                movedEmpty = files.length === 0;
+                movedEmpty = !files || files.length === 0;
             });
 
             const tags = tmpDir + 'tags.json';
