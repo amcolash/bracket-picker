@@ -168,7 +168,7 @@ function checkKey(e) {
 function getData() {
     window.onbeforeunload = null;
     axios.get('/data').then(data => {
-        sets = data.data;
+        sets = data.data.sets;
 
         const keys = Object.keys(sets);
         setsLength = keys.length;
@@ -178,7 +178,8 @@ function getData() {
             totalSize += sets[keys[i]].length;
         }
 
-        move.disabled = false;
+        undo.disabled = data.data.movedEmpty;
+
         update(mod(setIndex, setsLength));
     }).catch((err) => {
         console.error(err);
@@ -224,7 +225,7 @@ function isSelected(i) {
 }
 
 function select(i) {
-    if (move.disabled) return;
+    if (!loader.classList.contains('hidden')) return;
     
     if (currentSet.length > i) {
         const file = currentSet[i].SourceFile;
@@ -276,7 +277,7 @@ function checkShutter(file) {
 }
 
 function preview(i) {
-    if (move.disabled) return;
+    if (!loader.classList.contains('hidden')) return;
 
     if (i < 0) {
         back.click();
@@ -308,7 +309,7 @@ function preview(i) {
 }
 
 function update(i) {
-    if (move.disabled) return;
+    if (!loader.classList.contains('hidden')) return;
 
     setIndex = i;
 

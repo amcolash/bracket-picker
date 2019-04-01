@@ -22,7 +22,6 @@
   "dependencies": {
     "express": "^4.16.4",
     "fs-extra": "^7.0.1",
-    "node-dir": "^0.1.17",
-    "node-exiftool": "^2.3.0"
+    "node-dir": "^0.1.17"
   }
 }

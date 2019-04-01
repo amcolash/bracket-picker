@@ -4,9 +4,6 @@ const fs = require('fs-extra');
 const path = require('path');
 const nodedir = require('node-dir');
 
-const exiftool = require('node-exiftool');
-const ep = new exiftool.ExiftoolProcess();
-
 const baseTmpDir = '/tmp/bracket-picker/';
 
 // Disable vips warnings to avoid lots of logs
@@ -26,6 +23,7 @@ var rootDir;
 var sets = {};
 var dirs = {};
 var singleDir = false;
+var movedEmpty = true;
 var state = { text: 'Initializing', progress: '' };
 
 const PORT = 8080;
@@ -79,7 +77,7 @@ function initServer() {
     app.use('/', express.static(__dirname + '/app'));
 
     app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir, singleDir: singleDir }));
-    app.get('/data', (req, res) => res.send(sets));
+    app.get('/data', (req, res) => res.send({ sets: sets, movedEmpty: movedEmpty }));
     app.get('/state', (req, res) => res.send(state));
     
     app.post('/move', (req, res) => move(req, res));
@@ -109,7 +107,7 @@ async function setDir(newDir, res) {
     
     setTmp(path.basename(dir) + '/');
     extractPreviews();
-    sets = await getMetadata();
+    sets = await getMetadata(false);
 
     setState('Complete');
 }
@@ -189,7 +187,7 @@ async function getDirTree(directory) {
             // If there is only a single directory, set it up here
             dir = directory;
             setTmp(path.basename(dir) + '/');
-            sets = await getMetadata();
+            sets = await getMetadata(false);
             
             singleDir = true;
         } else {
@@ -275,6 +273,10 @@ async function extractPreviews() {
 
         // Only deal with dirs that contain extracted jpeg files
         if (filtered.length > 0) {
+            // Extract exif tags from source files to tmpDir
+            setState('Extracting exif data from files');
+            await runCommand('exiftool -json ' + escapedDir + '/* > ' + escapedTmp + 'tags.json');
+
             // Write tags to extracted images
             setState('Writing exif data to preview files');
             await runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
@@ -330,17 +332,34 @@ function awaitExec (command, options = { log: false, cwd: process.cwd() }) {
     });
 }
 
-function getMetadata() {
+function getMetadata(forced) {
     setState('Getting Metadata');
-    return new Promise(resolve => {
-        ep
-            .open()
-            // read directory
-            .then(() => ep.readMetadata(dir, ['-File:all']))
-            .then(data => resolve(generateSets(data)), error => { console.error(error); resolve([]); })
-            .then(() => console.log('Finished getting metadata'))
-            .then(() => ep.close())
-            .catch(console.error);
+    return new Promise(async resolve => {
+        try {
+            await fs.readdir(dir + '/moved', (err, files) => {
+                movedEmpty = files.length === 0;
+            });
+
+            const tags = tmpDir + 'tags.json';
+            const tagsExist = await fs.exists(tags);
+            if (forced || !tagsExist) {
+                const escapedDir = dir.replace(/\ /g, '\\\ ');
+                const escapedTmp = tmpDir.replace(/\ /g, '\\\ ');
+                await runCommand('exiftool -json ' + escapedDir + '* > ' + escapedTmp + 'tags.json');
+            }
+
+            fs.readFile(tags, (err, data) => {
+                if (err) {
+                    console.error(err);
+                    resolve([]);
+                } else {
+                    resolve(generateSets(JSON.parse(data)));
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            resolve([]);
+        }
     });
 }
 
@@ -348,7 +367,7 @@ function generateSets(data) {
     const sets = {};
 
     // Filter out non-raw files
-    const filtered = data.data.filter(f => {
+    const filtered = data.filter(f => {
         const ext = path.extname(f.SourceFile).toLowerCase();
         return extensionList.filter(s => s.includes(ext)).length !== 0;
     });
@@ -426,7 +445,7 @@ async function move(req, res) {
     await fs.mkdirp(dest);
 
     for (var i = 0; i < files.length; i++) {
-        const file = files[i];
+        const file = path.normalize(files[i]);
         const fileDest = dest + path.basename(file);
         console.log('moving', file, 'to', fileDest);
 
@@ -437,7 +456,9 @@ async function move(req, res) {
         }
     }
     
-    sets = await getMetadata();
+    // Extract new metadata on move
+    setState('Extracting exif data from files');
+    sets = await getMetadata(true);
     
     setState('Complete');
     res.sendStatus(200);
@@ -458,7 +479,7 @@ async function undo(req, res) {
     }
     
     extractPreviews();
-    sets = await getMetadata();
+    sets = await getMetadata(true);
     
     setState('Complete');
     res.sendStatus(200);
