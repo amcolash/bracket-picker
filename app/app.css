@@ -23,21 +23,27 @@ body {
 #dirs {
     display: none;
     position: absolute;
-    top: 0.75em;
-    left: 0.75em;
+    top: 0.5em;
+    left: 0.5em;
 }
 
-#dirs a {
+#gallery {
+    position: absolute;
+    top: 0.5em;
+    right: 0.5em;
+}
+
+#dirs a, #gallery a {
     color: white;
 }
 
-#dirs svg {
-    padding: 0.75em;
+#dirs svg, #gallery svg {
+    padding: 0.5em;
     border-radius: 0.1em;
     transition: background-color 0.3s;
 }
 
-#dirs svg:hover {
+#dirs svg:hover, #gallery svg:hover {
     background-color: #555;
 }
 

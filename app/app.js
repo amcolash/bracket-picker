@@ -343,27 +343,22 @@ function update(i) {
         section3.style.width = width;
 
         if (set.length > 0) {
-            image1.src = prefix(set[0].PreviewFile);
+            image1.src = set[0].ThumbnailFile;
             if (selected[set[0].SourceFile]) section1.classList.add('selected');
         }
 
         if (set.length > 1) {
-            image2.src = prefix(set[1].PreviewFile);
+            image2.src = set[1].ThumbnailFile;
             if (selected[set[1].SourceFile]) section2.classList.add('selected');
         }
 
         if (set.length > 2) {
-            image3.src = prefix(set[2].PreviewFile);
+            image3.src = set[2].ThumbnailFile;
             if (selected[set[2].SourceFile]) section3.classList.add('selected');
         }
     }
 
     if (overlayShown()) preview(0);
-}
-
-function prefix(file) {
-    const last = file.lastIndexOf('/') + 1;
-    return file.substring(0, last) + 'tn_' + file.substring(last, file.length);
 }
 
 function getSelectedFiles() {

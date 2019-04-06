@@ -76,6 +76,7 @@ function initServer() {
     });
     app.use('/', express.static(__dirname + '/app'));
 
+    app.get('/dir', (req, res) => res.send({ dir: dir, tmpDir: tmpDir }));
     app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir, singleDir: singleDir }));
     app.get('/data', (req, res) => res.send({ sets: sets, movedEmpty: movedEmpty }));
     app.get('/state', (req, res) => res.send(state));
@@ -385,6 +386,7 @@ function generateSets(data) {
         const file = files[i];
         file.FileName = path.basename(file.SourceFile);
         file.PreviewFile = '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg';
+        file.ThumbnailFile = '/previews/tn_' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg';
     }
 
     for (i = 0; i < files.length; i++) {

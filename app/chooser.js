@@ -3,6 +3,11 @@ var baseDir;
 
 window.onload = () => {
     axios.get('/dirs').then(response => {
+        if (response.data.singleDir) {
+            window.location.pathname = '/';
+            return;
+        }
+        
         const dirs = response.data.dirs;
         baseDir = response.data.baseDir;
         app.style.opacity = '1';
