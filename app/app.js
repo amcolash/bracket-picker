@@ -13,6 +13,12 @@ var lastKey;
 const mod = (x, n) => (x % n + n) % n;
 
 window.onload = () => {
+    axios.get('/dir').then(response => {
+        if (!response.data.dir) {
+          window.location.pathname = '/';
+        }
+    });
+
     axios.get('/dirs').then(response => {
         if (!response.data.singleDir) {
             dirs.style.display = 'block';
