@@ -17,7 +17,10 @@ window.onload = () => {
               const img = document.createElement('img');
 
               div.className = 'image';
+              
               a.href = set[j].PreviewFile;
+              a.title = set[j].ThumbnailFile.replace('/previews/tn_', '');
+
               img.src = set[j].ThumbnailFile;
               img.alt = set[j].ThumbnailFile.replace('/previews/tn_', '');
 
@@ -30,9 +33,9 @@ window.onload = () => {
           $("#gallery").justifiedGallery({
             rowHeight: height,
             margins: 12
-          }).on('jg.complete', () => {
-            $('#gallery a').simpleLightbox();
           });
+
+          $('#gallery a').simpleLightbox();
 
           zoomout.addEventListener('click', () => {
             height *= 0.75;
