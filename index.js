@@ -276,7 +276,7 @@ async function extractPreviews() {
         if (filtered.length > 0) {
             // Extract exif tags from source files to tmpDir
             setState('Extracting exif data from files');
-            await runCommand('exiftool -json ' + escapedDir + '/* > ' + escapedTmp + 'tags.json');
+            await runCommand('exiftool -json ' + escapedDir + ' > ' + escapedTmp + 'tags.json');
 
             // Write tags to extracted images
             setState('Writing exif data to preview files');
@@ -346,7 +346,7 @@ function getMetadata(forced) {
             if (forced || !tagsExist) {
                 const escapedDir = dir.replace(/\ /g, '\\\ ');
                 const escapedTmp = tmpDir.replace(/\ /g, '\\\ ');
-                await runCommand('exiftool -json ' + escapedDir + '* > ' + escapedTmp + 'tags.json');
+                await runCommand('exiftool -json ' + escapedDir + ' > ' + escapedTmp + 'tags.json');
             }
 
             fs.readFile(tags, (err, data) => {
