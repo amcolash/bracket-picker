@@ -117,7 +117,7 @@ function setTmp(tmp) {
     tmpDir = resolveDir(baseTmpDir + tmp);
     console.log('setting tmp dir to ', tmpDir);
 
-    app.use('/previews', express.static(tmpDir, { maxage: '2h' }));
+    app.use('/previews', express.static(tmpDir, { maxage: '2w' }));
 }
 
 async function getDirTree(directory) {
@@ -384,9 +384,21 @@ function generateSets(data) {
 
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
-        file.FileName = path.basename(file.SourceFile);
-        file.PreviewFile = '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg';
-        file.ThumbnailFile = '/previews/tn_' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg';
+        const strippedFile = {
+            SourceFile: file.SourceFile,
+            FileName: path.basename(file.SourceFile),
+            PreviewFile: '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
+            ThumbnailFile: '/previews/tn_' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
+            FileName: file.FileName,
+            Aperture: file.Aperture,
+            ISO: file.ISO,
+            ShutterSpeed: file.ShutterSpeed,
+            FocalLength: file.FocalLength,
+            AEBBracketValue: file.AEBBracketValue,
+        };
+
+        // Strip down file data so only values used are passed over the wire (about 3% of total data)
+        files[i] = strippedFile;
     }
 
     for (i = 0; i < files.length; i++) {
