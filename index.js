@@ -80,7 +80,7 @@ function initServer() {
     app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir, singleDir: singleDir }));
     app.get('/data', (req, res) => res.send({ sets: sets, movedEmpty: movedEmpty }));
     app.get('/state', (req, res) => res.send(state));
-    
+
     app.post('/move', (req, res) => move(req, res));
     app.post('/undo', (req, res) => undo(req, res));
     app.post('/dir', (req, res) => setDir(req.body.dir, res));
@@ -96,16 +96,16 @@ function resolveDir(dir) {
 async function setDir(newDir, res) {
     dir = resolveDir(newDir);
     console.log('setting base dir to', dir);
-    
+
     if (await !fs.exists(dir)) {
         console.error(dir + ' does not exist');
         if (res) res.sendStatus(404);
         return;
     }
-    
+
     setState('Running batch extraction', '');
     if (res) res.sendStatus(200);
-    
+
     setTmp(path.basename(dir) + '/');
     extractPreviews();
     sets = await getMetadata(false);
@@ -117,7 +117,7 @@ function setTmp(tmp) {
     tmpDir = resolveDir(baseTmpDir + tmp);
     console.log('setting tmp dir to ', tmpDir);
 
-    app.use('/previews', express.static(tmpDir, { maxage: '2h' }));
+    app.use('/previews', express.static(tmpDir, { maxage: '2w' }));
 }
 
 async function getDirTree(directory) {
@@ -154,12 +154,12 @@ async function getDirTree(directory) {
             } else {
                 p.useful = false;
             }
-            
+
             if (p.children) {
                 p.children.forEach(async child => { await recurse(child, name); });
             }
         }
-        
+
         await recurse(dirs[0], '');
 
         // Run a batch extract of all folders in the root directory
@@ -189,7 +189,7 @@ async function getDirTree(directory) {
             dir = directory;
             setTmp(path.basename(dir) + '/');
             sets = await getMetadata(false);
-            
+
             singleDir = true;
         } else {
             // Cleanup
@@ -210,17 +210,17 @@ async function filterAsync(arr, callback) {
 
 async function isDirUseful(dir) {
     const files = await fs.readdir(dir, { withFileTypes: true });
-    
+
     for (var i = 0; i < files.length; i++) {
         const file = files[i];
         if (file.isDirectory()) continue;
-        
+
         const ext = path.extname(file.name).toLowerCase().trim();
         if (ext.length === 0 || extensionList.filter(s => s.endsWith(ext)).length === 0) continue;
-        
+
         return true;
     }
-    
+
     return false;
 }
 
@@ -262,7 +262,7 @@ async function extractPreviews() {
 
         const escapedDir = dir.replace(/\ /g, '\\\ ');
         const escapedTmp = tmpDir.replace(/\ /g, '\\\ ');
-        
+
         // Extract images to tmpDir
 
         setState('Extracting raw previews');
@@ -285,7 +285,7 @@ async function extractPreviews() {
             // Fix orientation of vertical images
             setState('Auto rotating preview images');
             await runCommand('exifautotran ' + escapedTmp + '*.jpg');
-        
+
             // Resizing doesn't seem to have an impact on image load but causes long delays on boot
             setState('Generating thumbnails from full-size previews');
             await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
@@ -318,7 +318,7 @@ async function runCommand(command) {
 // Code from: https://github.com/hanford/await-exec
 function awaitExec (command, options = { log: false, cwd: process.cwd() }) {
     if (options.log) console.log(command);
-  
+
     return new Promise((done, failed) => {
         exec(command, { ...options }, (err, stdout, stderr) => {
             if (err) {
@@ -327,7 +327,7 @@ function awaitExec (command, options = { log: false, cwd: process.cwd() }) {
                 failed(err);
                 return;
             }
-    
+
             done({ stdout, stderr });
         });
     });
@@ -392,7 +392,7 @@ function generateSets(data) {
     for (i = 0; i < files.length; i++) {
         var fileList = [files[i]];
         sets[files[i].SourceFile] = fileList;
-        
+
         // reset cycle
         const bracket = getBracket(files[i]);
         if (bracket == 0) {
@@ -442,7 +442,7 @@ function getFileNumber(file) {
 
 async function move(req, res) {
     const files = req.body.files;
-    
+
     const dest = dir + 'moved/';
     await fs.mkdirp(dest);
 
@@ -457,11 +457,11 @@ async function move(req, res) {
             console.error(err);
         }
     }
-    
+
     // Extract new metadata on move
     setState('Extracting exif data from files');
     sets = await getMetadata(true);
-    
+
     setState('Complete');
     res.sendStatus(200);
 }
@@ -479,10 +479,10 @@ async function undo(req, res) {
     } catch (err) {
         console.error(err);
     }
-    
+
     extractPreviews();
     sets = await getMetadata(true);
-    
+
     setState('Complete');
     res.sendStatus(200);
 }
