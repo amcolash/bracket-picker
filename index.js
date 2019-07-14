@@ -387,6 +387,7 @@ function generateSets(data) {
         const strippedFile = {
             SourceFile: file.SourceFile,
             FileName: path.basename(file.SourceFile),
+            DateTime: file.DateTimeOriginal,
             PreviewFile: '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
             ThumbnailFile: '/previews/tn_' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
             FileName: file.FileName,
