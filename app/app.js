@@ -63,12 +63,24 @@ window.onload = () => {
     rightArrow.addEventListener('click', e => { e.stopPropagation(); preview(previewIndex + 1); });
 
     overlay.addEventListener('click', e => { hideOverlay(); });
-    info.addEventListener('click', e => { fileInfo.classList.toggle('invisible'); e.stopPropagation(); });
+    info.addEventListener('click', e => { fileInfo.classList.toggle('invisible'); previewHistogram.classList.toggle('invisible'); e.stopPropagation(); });
     download.addEventListener('click', e => e.stopPropagation());
 
-    image1.addEventListener('load', () => { file1.innerHTML = getInfo(currentSet[0]); section1.classList.remove('hidden'); feather.replace(); });
-    image2.addEventListener('load', () => { file2.innerHTML = getInfo(currentSet[1]); section2.classList.remove('hidden'); feather.replace(); });
-    image3.addEventListener('load', () => { file3.innerHTML = getInfo(currentSet[2]); section3.classList.remove('hidden'); feather.replace(); });
+    image1.addEventListener('load', () => { file1.innerHTML = getInfo(currentSet[0], image1, histogram1);
+        section1.classList.remove('hidden'); feather.replace(); });
+    image2.addEventListener('load', () => { file2.innerHTML = getInfo(currentSet[1], image2, histogram2);
+        section2.classList.remove('hidden'); feather.replace(); });
+    image3.addEventListener('load', () => { file3.innerHTML = getInfo(currentSet[2], image3, histogram3);
+        section3.classList.remove('hidden'); feather.replace(); });
+    
+    // Still draw histogram based off of thumbnail - might need to think this through if it uses old thumb...
+    previewImg.addEventListener('load', () => {
+        var img = image1;
+        if (previewIndex === 1) img = image2;
+        if (previewIndex === 2) img = image3;
+
+        overlayFile.innerHTML = getInfo(currentSet[previewIndex], img, previewHistogram);
+    });
     
     window.onkeydown = checkKey;
     window.onkeyup = () => lastKey = null;
@@ -260,7 +272,10 @@ function select(i) {
     if (overlayShown() && previewIndex === i) preview(previewIndex);
 }
 
-function getInfo(file) {
+function getInfo(file, img, histogram) {
+    // Calculate histogram
+    if (img && histogram) calcHist(img, histogram);
+
     var info = '';
     info += file.FileName;
     info += '<br>' + parseDate(file.DateTime).toLocaleString();

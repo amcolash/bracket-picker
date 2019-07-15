@@ -131,6 +131,33 @@ body {
     cursor: pointer;
 }
 
+.histogram {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 25%;
+    height: 20%;
+    max-height: 20em;
+    max-width: 30em;
+    margin-left: -2px;
+    margin-bottom: -2px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid #777;
+    border-top-right-radius: 4px;
+    transition: opacity 0.35s;
+}
+
+#overlay .histogram {
+    position: absolute;
+    bottom: 2em;
+    left: 2em;
+    padding: 0.5em;
+    border-radius: 6px;
+    width: 13em;
+    height: 8em;
+
+}
+
 .section {
     padding: 0.25em 0.35em;
 }
