@@ -176,6 +176,7 @@ function checkKey(e) {
         }
     } else if (e.keyCode == '88') { // x
         fileInfo.classList.toggle('invisible');
+        previewHistogram.classList.toggle('invisible');
     } else if (e.keyCode == '191') { // '/'
         forward.click();
     } else if (e.keyCode == '190') { // '.'
