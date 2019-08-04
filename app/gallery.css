@@ -53,20 +53,6 @@ svg:hover {
   right: 0.5em;
 }
 
-#hzImg {
-  display: none !important;
-}
-
 .caption {
   font-size: 1em !important;
-}
-
-.slbCloseBtn {
-  position: fixed;
-  font-size: 2em;
-  right: 0;
-}
-
-.slbCaption {
-  font-size: 1.2em;
 }

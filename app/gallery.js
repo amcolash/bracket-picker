@@ -36,7 +36,11 @@ window.onload = () => {
             margins: 12
           });
 
-          $('#gallery a').simpleLightbox();
+          $('#gallery a').simpleLightbox({
+            captionsData: 'alt',
+            captionPosition: 'outside',
+            showCounter: true
+          });
 
           zoomout.addEventListener('click', () => {
             height *= 0.75;
