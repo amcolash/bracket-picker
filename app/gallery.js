@@ -5,6 +5,7 @@ window.onload = () => {
       if (!response.data.dir) {
         window.location.pathname = '/';
       } else {
+        folder.innerText = response.data.relative;
         feather.replace();
         axios.get('/data').then(response => {
           const sets = response.data.sets;

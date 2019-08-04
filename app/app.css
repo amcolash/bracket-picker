@@ -27,6 +27,11 @@ body {
     left: 0.5em;
 }
 
+#folder {
+    vertical-align: top;
+    line-height: 2.8em;
+}
+
 #gallery {
     position: absolute;
     top: 0.5em;

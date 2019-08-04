@@ -16,6 +16,8 @@ window.onload = () => {
     axios.get('/dir').then(response => {
         if (!response.data.dir) {
           window.location.pathname = '/';
+        } else {
+            folder.innerText = response.data.relative;
         }
     });
 
