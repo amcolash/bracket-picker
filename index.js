@@ -240,13 +240,16 @@ async function extractPreviews() {
         const fileNoExt = path.basename(file.name, path.extname(file.name));
         const tmpFile = tmpDir + fileNoExt + '.jpg';
         const tmpThumbFile = tmpDir + 'tn_' + fileNoExt + '.jpg';
+        const tmpLargeThumbFile = tmpDir + 'tn_lg_' + fileNoExt + '.jpg';
 
         try {
             const fileExists = await fs.exists(tmpFile);
             const thumbExists = await fs.exists(tmpThumbFile);
-            if (!fileExists || !thumbExists) {
+            const largeThumbExists = await fs.exists(tmpLargeThumbFile);
+            if (!fileExists || !thumbExists || !largeThumbExists) {
                 if (!fileExists) console.log(tmpFile + ' does not exist');
                 if (!thumbExists) console.log(tmpThumbFile + ' does not exist');
+                if (!largeThumbExists) console.log(tmpThumbFile + ' does not exist');
                 modified = true;
                 break;
             }
@@ -289,6 +292,9 @@ async function extractPreviews() {
             // Resizing doesn't seem to have an impact on image load but causes long delays on boot
             setState('Generating thumbnails from full-size previews');
             await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
+
+            setState('Generating large thumbnails from full-size previews');
+            await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 2000 -o tn_lg_%s.jpg');
         } else {
             console.log("Didn't find any files in", dir);
         }
@@ -388,7 +394,8 @@ function generateSets(data) {
             SourceFile: file.SourceFile,
             FileName: path.basename(file.SourceFile),
             DateTime: file.DateTimeOriginal,
-            PreviewFile: '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
+            LargeFile: '/previews/' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
+            PreviewFile: '/previews/tn_lg_' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
             ThumbnailFile: '/previews/tn_' + path.basename(file.SourceFile, path.extname(file.SourceFile)) + '.jpg',
             FileName: file.FileName,
             Aperture: file.Aperture,

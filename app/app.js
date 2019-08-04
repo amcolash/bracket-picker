@@ -67,6 +67,7 @@ window.onload = () => {
     overlay.addEventListener('click', e => { hideOverlay(); });
     info.addEventListener('click', e => { fileInfo.classList.toggle('invisible'); previewHistogram.classList.toggle('invisible'); e.stopPropagation(); });
     download.addEventListener('click', e => e.stopPropagation());
+    large.addEventListener('click', e => e.stopPropagation());
 
     image1.addEventListener('load', () => { file1.innerHTML = getInfo(currentSet[0], image1, histogram1);
         section1.classList.remove('hidden'); feather.replace(); });
@@ -318,7 +319,8 @@ function preview(i) {
     previewIndex = mod(i, currentSet.length);
     showOverlay();
     previewImg.src = currentSet[previewIndex].PreviewFile;
-    download.href = currentSet[previewIndex].PreviewFile;
+    download.href = currentSet[previewIndex].LargeFile;
+    large.href = currentSet[previewIndex].LargeFile;
     overlayFile.innerHTML = getInfo(currentSet[previewIndex]);
     feather.replace();
 
