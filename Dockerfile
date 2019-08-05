@@ -5,19 +5,18 @@ FROM mhart/alpine-node:10
 WORKDIR /usr/src/app
 
 # Add testing alpine repo and install dependencies
-RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
-RUN apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@testing bash
+RUN echo @community http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
+  apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@community bash
 
 # Grab exifautotran
-RUN wget -P /usr/bin/ https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran
-RUN chmod +x /usr/bin/exifautotran
+RUN wget -P /usr/bin/ https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran && \
+  chmod +x /usr/bin/exifautotran
 
 # Grab jpegexiforient
-RUN wget -P /tmp https://raw.githubusercontent.com/CiderMan/jpegexiforient/master/jpegexiforient.c
-RUN gcc /tmp/jpegexiforient.c -o /usr/bin/jpegexiforient
+RUN wget -P /tmp https://raw.githubusercontent.com/CiderMan/jpegexiforient/master/jpegexiforient.c && \
+  gcc /tmp/jpegexiforient.c -o /usr/bin/jpegexiforient
 
 # For caching purposes, install deps without other changed files
-WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
 
 # Install deps
