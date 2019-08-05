@@ -289,12 +289,18 @@ async function extractPreviews() {
             setState('Auto rotating preview images');
             await runCommand('exifautotran ' + escapedTmp + '*.jpg');
 
-            // Resizing doesn't seem to have an impact on image load but causes long delays on boot
-            setState('Generating thumbnails from full-size previews');
-            await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 700');
-
+            // Make large images first
             setState('Generating large thumbnails from full-size previews');
             await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 2000 -o tn_lg_%s.jpg');
+            
+            // Resizing from already smaller images to tiny thumbnails is much faster
+            setState('Generating small thumbnails from large thumbnails');
+            await runCommand('vipsthumbnail ' + escapedTmp + 'tn_lg_*.jpg -s 700');
+
+            // Fix double named things (since it is easiest this way)
+            setState('Fixing thumbnail names');
+            await runCommand('for file in ' + escapedTmp + 'tn_tn_lg_*.jpg; do mv "$file" "${file/tn_lg_/}";done;');
+
         } else {
             console.log("Didn't find any files in", dir);
         }
@@ -322,7 +328,7 @@ async function runCommand(command) {
 }
 
 // Code from: https://github.com/hanford/await-exec
-function awaitExec (command, options = { log: false, cwd: process.cwd() }) {
+function awaitExec (command, options = { log: false, cwd: process.cwd(), shell: '/bin/bash' }) {
     if (options.log) console.log(command);
 
     return new Promise((done, failed) => {
