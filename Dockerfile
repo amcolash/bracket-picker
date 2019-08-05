@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 # Add testing alpine repo and install dependencies
 RUN echo @testing http://nl.alpinelinux.org/alpine/edge/testing >> /etc/apk/repositories
-RUN apk add exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@testing
+RUN apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@testing bash
 
 # Grab exifautotran
 RUN wget -P /usr/bin/ https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran
