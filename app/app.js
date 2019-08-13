@@ -66,7 +66,7 @@ window.onload = () => {
     rightArrow.addEventListener('click', e => { e.stopPropagation(); preview(previewIndex + 1); });
 
     overlay.addEventListener('click', e => { hideOverlay(); });
-    info.addEventListener('click', e => { fileInfo.classList.toggle('invisible'); previewHistogram.classList.toggle('invisible'); e.stopPropagation(); });
+    info.addEventListener('click', e => { toggleInfo(); e.stopPropagation(); });
     download.addEventListener('click', e => e.stopPropagation());
     large.addEventListener('click', e => e.stopPropagation());
 
@@ -84,6 +84,7 @@ window.onload = () => {
         if (previewIndex === 2) img = image3;
 
         overlayFile.innerHTML = getInfo(currentSet[previewIndex], img, previewHistogram);
+        feather.replace();
     });
     
     window.onkeydown = checkKey;
@@ -191,8 +192,7 @@ function checkKey(e) {
             preview(0);
         }
     } else if (e.keyCode == '88') { // x
-        fileInfo.classList.toggle('invisible');
-        previewHistogram.classList.toggle('invisible');
+        toggleInfo();
     } else if (e.keyCode == '191') { // '/'
         forward.click();
     } else if (e.keyCode == '190') { // '.'
@@ -241,6 +241,11 @@ function hideOverlay() {
 
 function overlayShown() {
     return overlay.classList.contains('shown');
+}
+
+function toggleInfo() {
+    fileInfo.classList.toggle('invisible');
+    previewHistogram.classList.toggle('invisible');
 }
 
 const fullscreenElement = document.documentElement;
