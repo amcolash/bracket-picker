@@ -112,6 +112,85 @@ window.onload = () => {
 
     new Hammer(overlay, press).on('press', () => hideOverlay());
     new Hammer(overlay, pinchIn).on('pinchin', () => hideOverlay());
+    
+    joypad.on('button_press', e => {
+        const button = e.detail.index;
+
+        if (button === 3 && !overlayShown()) select(0)
+        if (button === 0 && !overlayShown()) select(1)
+        if (button === 1 && !overlayShown()) select(2)
+
+        if (overlayShown() && button <= 3) select(previewIndex);
+
+        if (button === 4) {
+            if (overlayShown()) preview(previewIndex - 1);
+            else back.click();
+        }
+        if (button === 5) {
+            if (overlayShown()) preview(previewIndex + 1);
+            else forward.click();
+        }
+        if (button === 8) {
+            if (overlayShown()) {
+                toggleInfo();
+            } else {
+                toggleFullscreen();
+            }
+        }
+        if (button === 9) {
+            if (overlayShown()) hideOverlay();
+            else preview(0);
+        }
+
+        console.log(e)
+    });
+
+    // Helper so that events only happen on axis state change
+    function resetJoystick(axis, cb) {
+        setTimeout(() => {
+            if (joypad.instances[0]) {
+                const joy = joypad.instances[0];
+                const a = joy.axes[axis];
+                if (a !== previousAxis[axis]) {
+                    previousAxis[axis] = a;
+                    if (cb) cb();
+                } else {
+                    resetJoystick(axis, cb);
+                }
+            } else {
+                console.error("couldn't find controller");
+                previousAxis[axis] = 0;
+            }
+        }, 100);
+    }
+    
+    // Use some magic to only react to state changes in axis by comparing previous values
+    let previousAxis = [0, 0];
+    joypad.on('axis_move', e => {
+        const axis = e.detail.axis;
+        const value = e.detail.axisMovementValue;
+        
+        if (previousAxis[axis] !== value) {
+            if (axis === 0 && value === -1) {
+                if (overlayShown()) {
+                    preview(previewIndex - 1);
+                } else {
+                    back.click();
+                }
+            }
+            if (axis === 0 && value === 1) {
+                if (overlayShown()) {
+                    preview(previewIndex + 1);
+                } else {
+                    forward.click();
+                }
+            }
+
+            resetJoystick(axis);
+        }
+
+        previousAxis[axis] = value;
+    });
 
     getData();
 }
