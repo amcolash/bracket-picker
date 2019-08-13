@@ -185,6 +185,8 @@ window.onload = () => {
                     forward.click();
                 }
             }
+            if (axis === 1 && value === -1) backLarge.click();
+            if (axis === 1 && value === 1) forwardLarge.click();
 
             resetJoystick(axis);
         }
