@@ -38,17 +38,24 @@ body {
     right: 0.5em;
 }
 
+#fullscreen {
+    position: absolute;
+    bottom: 0.5em;
+    right: 0.5em;
+}
+
 #dirs a, #gallery a {
     color: white;
 }
 
-#dirs svg, #gallery svg {
+#dirs svg, #gallery svg, #fullscreen svg {
     padding: 0.5em;
     border-radius: 0.1em;
     transition: background-color 0.3s;
+    cursor: pointer;
 }
 
-#dirs svg:hover, #gallery svg:hover {
+#dirs svg:hover, #gallery svg:hover, #fullscreen svg:hover {
     background-color: #555;
 }
 
@@ -150,6 +157,7 @@ body {
     border: 2px solid #777;
     border-top-right-radius: 4px;
     transition: opacity 0.35s;
+    pointer-events: none;
 }
 
 #overlay .histogram {

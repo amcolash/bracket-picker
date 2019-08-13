@@ -46,6 +46,7 @@ window.onload = () => {
     // reset.addEventListener('click', () => update(0));
     move.addEventListener('click', moveFiles);
     undo.addEventListener('click', undoMove);
+    fullscreen.addEventListener('click', toggleFullscreen);
     
     image1.addEventListener('click', () => select(0));
     image2.addEventListener('click', () => select(1));
@@ -166,11 +167,23 @@ function checkKey(e) {
             select(0);
         }
     } else if (e.keyCode == '81') { // q
-        preview(0);
+        if (overlayShown() && previewIndex === 0) {
+            hideOverlay();
+        } else {
+            preview(0);
+        }
     } else if (e.keyCode == '87') { // w
-        preview(1);
+        if (overlayShown() && previewIndex === 1) {
+            hideOverlay();
+        } else {
+            preview(1);
+        }
     } else if (e.keyCode == '69') { // e
-        preview(2);
+        if (overlayShown() && previewIndex === 2) {
+            hideOverlay();
+        } else {
+            preview(2);
+        }
     } else if (e.keyCode == '90') { // z
         if (overlayShown()) {
             hideOverlay();
@@ -228,6 +241,24 @@ function hideOverlay() {
 
 function overlayShown() {
     return overlay.classList.contains('shown');
+}
+
+const fullscreenElement = document.documentElement;
+function toggleFullscreen() {
+    if (fullscreenElement.requestFullscreen) {
+        if (isFullscreen()) {
+            document.exitFullscreen();
+        } else {
+            fullscreenElement.requestFullscreen();
+        }
+    }
+    const icon = isFullscreen() ? 'maximize' : 'minimize';
+    fullscreen.innerHTML = '<i data-feather="' + icon + '"></i>';
+    feather.replace();
+}
+
+function isFullscreen() {
+    return document.fullscreen;
 }
 
 function selectAll() {
