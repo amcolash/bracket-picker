@@ -141,6 +141,8 @@ body {
     background-color: rgba(255, 255, 255,0.3);
     border-radius: 4px 0 2px 0;
     cursor: pointer;
+    border-top: 2px solid #777;
+    border-left: 2px solid #777;
 }
 
 .histogram {
