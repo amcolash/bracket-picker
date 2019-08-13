@@ -75,6 +75,7 @@ body {
     border: 0.15em solid #777;
     border-radius: 0.5em;
     transition: opacity 0.35s;
+    user-select: none;
 }
 
 #fileInfo {
