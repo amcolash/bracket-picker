@@ -116,29 +116,42 @@ window.onload = () => {
     joypad.on('button_press', e => {
         const button = e.detail.index;
 
-        if (button === 3 && !overlayShown()) select(0)
-        if (button === 0 && !overlayShown()) select(1)
-        if (button === 1 && !overlayShown()) select(2)
+        if (button === 3) { // Y
+            if (!overlayShown() && !e.detail.gamepad.buttons[8].pressed) select(0); // Y + Select not pressed
+            else preview(0);
+        }
 
-        if (overlayShown() && button <= 3) select(previewIndex);
+        if (button === 0) { // X
+            if (!overlayShown() && !e.detail.gamepad.buttons[8].pressed) select(1); // Y + Select not pressed
+            else preview(1);
+        }
 
-        if (button === 4) {
+        if (button === 1) { // A
+            if (!overlayShown() && !e.detail.gamepad.buttons[8].pressed) select(2); // Y + Select not pressed
+            else preview(2);
+        }
+
+        if (button === 2 && overlayShown()) select(previewIndex); // B
+
+        if (button === 4) { // L1
             if (overlayShown()) preview(previewIndex - 1);
             else back.click();
         }
-        if (button === 5) {
+
+        if (button === 5) { // R1
             if (overlayShown()) preview(previewIndex + 1);
             else forward.click();
         }
-        if (button === 8) {
+
+        if (button === 8) { // Select
             if (overlayShown()) {
                 toggleInfo();
-            } else {
-                toggleFullscreen();
             }
         }
-        if (button === 9) {
-            if (overlayShown()) hideOverlay();
+
+        if (button === 9) { // Start
+            if (e.detail.gamepad.buttons[8].pressed) toggleFullscreen(); // Start + Select
+            else if (overlayShown()) hideOverlay();
             else preview(0);
         }
 
