@@ -1,115 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Bracket Picker</title>
 
-    <link rel="stylesheet" href="buttons.min.css">
-    <link rel="stylesheet" href="spinner.css">
-    <link rel="stylesheet" href="app.css">
-</head>
-<body>
+    <link rel="stylesheet" href="buttons.min.css" />
+    <link rel="stylesheet" href="spinner.css" />
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
     <div id="app">
-        <div id="dirs">
-            <a href="/chooser.html" id="chooser">
-                <i data-feather="folder"></i>
-            </a>
-        </div>
-        <div id="gallery">
-            <span id="folder"></span>
-            <a href="/gallery.html">
-                <i data-feather="grid"></i>
-            </a>
-        </div>
-        <div id="fullscreen">
-            <i data-feather="maximize"></i>
-        </div>
-        <div id="controls">
-            <span id="stats"></span>
-            <button class="btn btn-default" id="backLarge">&lt;&lt;</button>
-            <button class="btn btn-default" id="back">&lt;</button>
-            <button class="btn btn-default" id="forward">&gt;</button>
-            <button class="btn btn-default" id="forwardLarge">&gt;&gt;</button>
-            <!-- <button id="reset">X</button> -->
-            <button class="btn btn-default" id="move" disabled>Move Files</button>
-            <button class="btn btn-default" id="undo">Undo</button>
-            <div class="lds-dual-ring hidden" id="loader"></div>
-        </div>
-        <div id="images">
-            <div class="section hidden" id="section1">
-                <div class="imageWrap">
-                    <div class="image">
-                        <img id="image1" src="">
-                        <i id="preview1" data-feather="search"></i>
-                        <canvas id="histogram1" class="histogram"></canvas>
-                    </div>
-                </div>
-                <br>
-                <div class="file">
-                    <span id="file1"></span>
-                </div>
+      <div id="dirs">
+        <a href="/chooser.html" id="chooser">
+          <i data-feather="folder"></i>
+        </a>
+      </div>
+      <div id="gallery">
+        <span id="folder"></span>
+        <a href="/gallery.html">
+          <i data-feather="grid"></i>
+        </a>
+      </div>
+      <div id="fullscreen">
+        <i data-feather="maximize"></i>
+      </div>
+      <div id="controls">
+        <span id="stats"></span>
+        <button class="btn btn-default" id="backLarge">&lt;&lt;</button>
+        <button class="btn btn-default" id="back">&lt;</button>
+        <button class="btn btn-default" id="forward">&gt;</button>
+        <button class="btn btn-default" id="forwardLarge">&gt;&gt;</button>
+        <!-- <button id="reset">X</button> -->
+        <button class="btn btn-default" id="move" disabled>Move Files</button>
+        <button class="btn btn-default" id="undo">Undo</button>
+        <div class="lds-dual-ring hidden" id="loader"></div>
+      </div>
+      <div id="images">
+        <div class="section hidden" id="section1">
+          <div class="imageWrap">
+            <div class="image">
+              <img id="image1" src="" />
+              <i id="preview1" data-feather="search"></i>
+              <canvas id="histogram1" class="histogram"></canvas>
             </div>
-            <div class="section hidden" id="section2">
-                <div class="imageWrap">
-                    <div class="image">
-                        <img id="image2" src="">
-                        <i id="preview2" data-feather="search"></i>
-                        <canvas id="histogram2" class="histogram"></canvas>
-                    </div>
-                </div>
-                <br>
-                <div class="file">
-                    <span id="file2"></span>
-                </div>
-            </div>
-            <div class="section hidden" id="section3">
-                <div class="imageWrap">
-                    <div class="image">
-                        <img id="image3" src="">
-                        <i id="preview3" data-feather="search"></i>
-                        <canvas id="histogram3" class="histogram"></canvas>
-                    </div>
-                </div>
-                <br>
-                <div class="file">
-                    <span id="file3"></span>
-                </div>
-            </div>
+          </div>
+          <br />
+          <div class="file">
+            <span id="file1"></span>
+          </div>
         </div>
-        <div id="overlay">
-            <div class="top">
-                <a id="large" href="" target="_blank">
-                    <i data-feather="external-link"></i>
-                </a>
-                <a id="download" href="" download>
-                    <i data-feather="download"></i>
-                </a>
-                <i id="info" data-feather="info"></i>
-                <i data-feather="x"></i>
+        <div class="section hidden" id="section2">
+          <div class="imageWrap">
+            <div class="image">
+              <img id="image2" src="" />
+              <i id="preview2" data-feather="search"></i>
+              <canvas id="histogram2" class="histogram"></canvas>
             </div>
-            <div id="previewContainer">
-                <div id="imageContainer">
-                    <i id="leftArrow" data-feather="arrow-left"></i>
-                    <img id="previewImg" src="" draggable="false">
-                    <canvas id="previewHistogram" class="histogram"></canvas>
-                    <i id="rightArrow" data-feather="arrow-right"></i>
-                </div>
-                <br>
-                <div class="pager">
-                    <div>
-                        <span class="hidden dots" id="pager1">●</span>
-                        <span class="hidden dots" id="pager2">●</span>
-                        <span class="hidden dots" id="pager3">●</span>
-                    </div>
-                    <span id="pagerNumber"></span>
-                    <div id="fileInfo">
-                        <span id="overlayFile"></span>
-                    </div>
-                </div>
+          </div>
+          <br />
+          <div class="file">
+            <span id="file2"></span>
+          </div>
+        </div>
+        <div class="section hidden" id="section3">
+          <div class="imageWrap">
+            <div class="image">
+              <img id="image3" src="" />
+              <i id="preview3" data-feather="search"></i>
+              <canvas id="histogram3" class="histogram"></canvas>
             </div>
-    </div>
+          </div>
+          <br />
+          <div class="file">
+            <span id="file3"></span>
+          </div>
+        </div>
+      </div>
+      <div id="overlay">
+        <div class="top">
+          <a id="large" href="" target="_blank">
+            <i data-feather="external-link"></i>
+          </a>
+          <a id="download" href="" download>
+            <i data-feather="download"></i>
+          </a>
+          <i id="info" data-feather="info"></i>
+          <i data-feather="x"></i>
+        </div>
+        <div id="previewContainer">
+          <div id="imageContainer">
+            <i id="leftArrow" data-feather="arrow-left"></i>
+            <img id="previewImg" src="" draggable="false" />
+            <canvas id="previewHistogram" class="histogram"></canvas>
+            <i id="rightArrow" data-feather="arrow-right"></i>
+          </div>
+          <br />
+          <div class="pager">
+            <div>
+              <span class="hidden dots" id="pager1">●</span>
+              <span class="hidden dots" id="pager2">●</span>
+              <span class="hidden dots" id="pager3">●</span>
+            </div>
+            <span id="pagerNumber"></span>
+            <div id="fileInfo">
+              <span id="overlayFile"></span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="app.js"></script>
@@ -118,5 +118,5 @@
     <script src="lib/hammer.min.js"></script>
     <script src="lib/histogram.js"></script>
     <script src="lib/joypad.min.js"></script>
-</body>
+  </body>
 </html>

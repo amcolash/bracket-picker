@@ -1,96 +1,96 @@
 body {
-    background-color: #333;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: hidden;
-    text-align: center;
-    font-size: 1.3em;
-    margin: 0;
+  background-color: #333;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  text-align: center;
+  font-size: 1.3em;
+  margin: 0;
 }
 
 #app {
-    margin: 2em;
-    height: calc(100vh - 4em);
-    opacity: 0;
-    transition: opacity 0.3s;
+  margin: 2em;
+  height: calc(100vh - 4em);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 #refreshContainer {
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
-    cursor: pointer;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  cursor: pointer;
 }
 
 #refreshContainer svg {
-    padding: 0.5em;
-    border-radius: 0.15em;
-    transition: background-color 0.3s;
+  padding: 0.5em;
+  border-radius: 0.15em;
+  transition: background-color 0.3s;
 }
 
 #refreshContainer svg:hover {
-    background-color: #555;
+  background-color: #555;
 }
 
 #dirList {
-    width: fit-content;
-    max-height: calc(100vh - 6em);
-    overflow-y: auto;
-    margin: auto;
-    padding: 0.75em 2.5em;
-    border-radius: 0.25em;
-    background-color: #444;
-    border: 0.1em solid #555;
+  width: fit-content;
+  max-height: calc(100vh - 6em);
+  overflow-y: auto;
+  margin: auto;
+  padding: 0.75em 2.5em;
+  border-radius: 0.25em;
+  background-color: #444;
+  border: 0.1em solid #555;
 }
 
 .file {
-    padding: 0.2em;
-    width: fit-content;
+  padding: 0.2em;
+  width: fit-content;
 }
 
 .disabled {
-    color: #999;
+  color: #999;
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .nested {
-    margin-left: 0.75em;
+  margin-left: 0.75em;
 }
 
 .nested svg {
-    padding-right: 0.25em;
-    margin-bottom: -0.2em;
+  padding-right: 0.25em;
+  margin-bottom: -0.2em;
 }
 
 .hover {
-    cursor: pointer;
-    transition: background-color 0.4s;
+  cursor: pointer;
+  transition: background-color 0.4s;
 }
 
 .hover:hover {
-    background-color: #555;
+  background-color: #555;
 }
 
 .noHover {
-    pointer-events: none;
-    cursor: auto;
+  pointer-events: none;
+  cursor: auto;
 }
 
 .dir {
-    width: fit-content;
-    text-align: left;
-    line-height: 1.2em;
+  width: fit-content;
+  text-align: left;
+  line-height: 1.2em;
 }
 
 .lds-dual-ring {
-    left: 5px;
-    top: 3px;
+  left: 5px;
+  top: 3px;
 }
 
 .lds-dual-ring::after {
-    width: 0.7em;
-    height: 0.7em;
+  width: 0.7em;
+  height: 0.7em;
 }

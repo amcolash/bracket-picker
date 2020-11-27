@@ -1,254 +1,261 @@
 body {
-    background-color: #333;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: hidden;
-    text-align: center;
-    margin: 0;
+  background-color: #333;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  text-align: center;
+  margin: 0;
 }
 
 .hidden {
-    display: none;
-    opacity: 0;
+  display: none;
+  opacity: 0;
 }
 
 .invisible {
-    opacity: 0;
+  opacity: 0;
 }
 
 #hzImg {
-    display: none !important;
+  display: none !important;
 }
 
 #dirs {
-    display: none;
-    position: absolute;
-    top: 0.5em;
-    left: 0.5em;
+  display: none;
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
 }
 
 #folder {
-    vertical-align: top;
-    line-height: 2.8em;
+  vertical-align: top;
+  line-height: 2.8em;
 }
 
 #gallery {
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
 }
 
 #fullscreen {
-    position: absolute;
-    bottom: 0.5em;
-    right: 0.5em;
+  position: absolute;
+  bottom: 0.5em;
+  right: 0.5em;
 }
 
-#dirs a, #gallery a {
-    color: white;
+#dirs a,
+#gallery a {
+  color: white;
 }
 
-#dirs svg, #gallery svg, #fullscreen svg {
-    padding: 0.5em;
-    border-radius: 0.1em;
-    transition: background-color 0.3s;
-    cursor: pointer;
+#dirs svg,
+#gallery svg,
+#fullscreen svg {
+  padding: 0.5em;
+  border-radius: 0.1em;
+  transition: background-color 0.3s;
+  cursor: pointer;
 }
 
-#dirs svg:hover, #gallery svg:hover, #fullscreen svg:hover {
-    background-color: #555;
+#dirs svg:hover,
+#gallery svg:hover,
+#fullscreen svg:hover {
+  background-color: #555;
 }
 
 #controls {
-    margin: 1em;
+  margin: 1em;
 }
 
 .file {
-    margin-bottom: 1em;
+  margin-bottom: 1em;
 }
 
-.file, #controls {
-    display: inline-block;
-    background-color: #444;
-    padding: 1.15em 2em;
-    line-height: 1.25em;
-    border: 0.15em solid #777;
-    border-radius: 0.5em;
-    transition: opacity 0.35s;
-    user-select: none;
+.file,
+#controls {
+  display: inline-block;
+  background-color: #444;
+  padding: 1.15em 2em;
+  line-height: 1.25em;
+  border: 0.15em solid #777;
+  border-radius: 0.5em;
+  transition: opacity 0.35s;
+  user-select: none;
 }
 
 #fileInfo {
-    position: absolute;
-    top: 2em;
-    left: 2em;
-    padding: 1em;
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 2px solid #777;
-    border-radius: 6px;
-    text-align: left;
-    line-height: 1.25em;
-    transition: opacity 0.35s;
+  position: absolute;
+  top: 2em;
+  left: 2em;
+  padding: 1em;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid #777;
+  border-radius: 6px;
+  text-align: left;
+  line-height: 1.25em;
+  transition: opacity 0.35s;
 }
 
 .selected .image {
-    outline: 2px solid red;
-    outline-offset: -2px;
+  outline: 2px solid red;
+  outline-offset: -2px;
 }
 
 .warn {
-    color: #f77;
-    width: 1.25em;
-    height: 1.25em;
-    margin-bottom: -0.2em;
-    margin-left: 0.2em;
+  color: #f77;
+  width: 1.25em;
+  height: 1.25em;
+  margin-bottom: -0.2em;
+  margin-left: 0.2em;
 }
 
 .selected {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 #stats {
-    padding-right: 0.5em;
+  padding-right: 0.5em;
 }
 
 #images {
-    display: flex;
-    align-items: center;
-    height: calc(90vh);
-    padding: 0.4em;
+  display: flex;
+  align-items: center;
+  height: calc(90vh);
+  padding: 0.4em;
 }
 
 .image {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    border: 2px solid #777;
-    border-radius: 4px;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  border: 2px solid #777;
+  border-radius: 4px;
 }
 
 .image img {
-    max-width: 100%;
-    max-height: calc(65vh);
-    align-self: center;
-    vertical-align: -webkit-baseline-middle;
+  max-width: 100%;
+  max-height: calc(65vh);
+  align-self: center;
+  vertical-align: -webkit-baseline-middle;
 }
 
 .image .feather-search {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    padding: 10px;
-    background-color: rgba(255, 255, 255,0.3);
-    border-radius: 4px 0 2px 0;
-    cursor: pointer;
-    border-top: 2px solid #777;
-    border-left: 2px solid #777;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px 0 2px 0;
+  cursor: pointer;
+  border-top: 2px solid #777;
+  border-left: 2px solid #777;
 }
 
 .histogram {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 25%;
-    height: 20%;
-    max-height: 20em;
-    max-width: 30em;
-    margin-left: -2px;
-    margin-bottom: -2px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border: 2px solid #777;
-    border-top-right-radius: 4px;
-    transition: opacity 0.35s;
-    pointer-events: none;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 25%;
+  height: 20%;
+  max-height: 20em;
+  max-width: 30em;
+  margin-left: -2px;
+  margin-bottom: -2px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid #777;
+  border-top-right-radius: 4px;
+  transition: opacity 0.35s;
+  pointer-events: none;
 }
 
 #overlay .histogram {
-    position: absolute;
-    bottom: 2em;
-    left: 2em;
-    padding: 0.5em;
-    border-radius: 6px;
-    width: 13em;
-    height: 8em;
-
+  position: absolute;
+  bottom: 2em;
+  left: 2em;
+  padding: 0.5em;
+  border-radius: 6px;
+  width: 13em;
+  height: 8em;
 }
 
 .section {
-    padding: 0.25em 0.35em;
+  padding: 0.25em 0.35em;
 }
 
 #overlay {
-    position: absolute;
-    display: flex;
-    flex-flow: wrap;
-    align-items: center;
-    justify-content: center;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.65);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.35s;
+  position: absolute;
+  display: flex;
+  flex-flow: wrap;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
 }
 
 #overlay.shown {
-    pointer-events: all;
-    opacity: 1;
+  pointer-events: all;
+  opacity: 1;
 }
 
 #previewImg {
-    max-width: calc(90vw - 2em);
-    max-height: calc(90vh - 2.5em);
-    box-shadow: 0 0 4em rgba(255, 255, 255, 0.35);
-    transition: box-shadow 0.35s;
+  max-width: calc(90vw - 2em);
+  max-height: calc(90vh - 2.5em);
+  box-shadow: 0 0 4em rgba(255, 255, 255, 0.35);
+  transition: box-shadow 0.35s;
 }
 
 #previewImg.selected {
-    box-shadow: 0 0 4em rgba(255, 0, 0, 0.75);
+  box-shadow: 0 0 4em rgba(255, 0, 0, 0.75);
 }
 
 #overlay .top {
-    position: absolute;
-    top: 0.75em;
-    right: 0.75em;
+  position: absolute;
+  top: 0.75em;
+  right: 0.75em;
 }
 
 #overlay .top svg {
-    cursor: pointer;
-    margin: 0.35em;
+  cursor: pointer;
+  margin: 0.35em;
 }
 
-#download, #large {
-    text-decoration: none;
-    color: white;
+#download,
+#large {
+  text-decoration: none;
+  color: white;
 }
 
 #imageContainer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: calc(97vw);
-    padding-top: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(97vw);
+  padding-top: 1em;
 }
 
-#rightArrow, #leftArrow {
-    padding: 0.5em;
-    cursor: pointer;
+#rightArrow,
+#leftArrow {
+  padding: 0.5em;
+  cursor: pointer;
 }
 
 .pager {
-    color: #aaa;
+  color: #aaa;
 }
 
 .pager .dots {
-    font-size: 2em;
-    cursor: pointer;
-    transition: color 0.25s;
+  font-size: 2em;
+  cursor: pointer;
+  transition: color 0.25s;
 }
 
 .pager .dots.active {
-    color: white;
+  color: white;
 }

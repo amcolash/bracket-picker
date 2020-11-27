@@ -1,31 +1,31 @@
 body {
-    background-color: #333;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: hidden;
-    text-align: center;
-    margin: 0;
+  background-color: #333;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  text-align: center;
+  margin: 0;
 }
 
 #app {
-    height: calc(100vh);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s;
+  height: calc(100vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 #app .lds-dual-ring {
-    left: 0;
+  left: 0;
 }
 
 #app .lds-dual-ring:after {
-    width: 4em;
-    height: 4em;
-    border-width: 0.25em;
+  width: 4em;
+  height: 4em;
+  border-width: 0.25em;
 }
 
 #state {
-    padding-top: 2em;
+  padding-top: 2em;
 }
