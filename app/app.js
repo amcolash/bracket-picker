@@ -581,18 +581,27 @@ function update(i) {
 
     // Do some preloading to make swapping feel better
     try {
-      preload(set[0].PreviewFile);
-      preload(set[1].PreviewFile);
-      preload(set[2].PreviewFile);
+      if (set[0]) preload(set[0].PreviewFile);
+      if (set[1]) preload(set[1].PreviewFile);
+      if (set[2]) preload(set[2].PreviewFile);
 
       const nextSet = sets[Object.keys(sets)[setIndex + 1]];
-      preload(nextSet[0].ThumbnailFile);
-      preload(nextSet[1].ThumbnailFile);
-      preload(nextSet[2].ThumbnailFile);
+      if (nextSet) {
+        if (nextSet[0]) {
+          preload(nextSet[0].ThumbnailFile);
+          preload(nextSet[0].PreviewFile);
+        }
 
-      preload(nextSet[0].PreviewFile);
-      preload(nextSet[1].PreviewFile);
-      preload(nextSet[2].PreviewFile);
+        if (nextSet[1]) {
+          preload(nextSet[1].ThumbnailFile);
+          preload(nextSet[1].PreviewFile);
+        }
+
+        if (nextSet[2]) {
+          preload(nextSet[2].ThumbnailFile);
+          preload(nextSet[2].PreviewFile);
+        }
+      }
     } catch (err) {
       console.error(err);
     }
