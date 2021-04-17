@@ -148,52 +148,64 @@ window.onload = () => {
   joypad.on('button_press', (e) => {
     const button = e.detail.index;
 
-    if (button === 3) {
-      // Y
-      if (!overlayShown() && !e.detail.gamepad.buttons[8].pressed) select(0);
-      // Y + Select not pressed
+    // Mapping of xinput / switch buttons
+    const xinput = true; // To use xinput or switch style buttons
+    const buttons = {
+      start: xinput ? 7 : 9,
+      select: xinput ? 6 : 8,
+      b: 1,
+      a: 0,
+      x: xinput ? 2 : 3, // (Y on Switch)
+      y: xinput ? 3 : 0, // (X on Switch)
+      r1: xinput ? 5 : 4,
+      l1: xinput ? 4 : 5,
+    };
+
+    if (button === buttons.x) {
+      if (!overlayShown() && !e.detail.gamepad.buttons[buttons.select].pressed) select(0);
+      // X + Select not pressed
       else preview(0);
     }
 
-    if (button === 0) {
-      // X
-      if (!overlayShown() && !e.detail.gamepad.buttons[8].pressed) select(1);
+    if (button === buttons.y) {
+      if (!overlayShown() && !e.detail.gamepad.buttons[buttons.select].pressed) select(1);
       // Y + Select not pressed
       else preview(1);
     }
 
-    if (button === 1) {
-      // A
-      if (!overlayShown() && !e.detail.gamepad.buttons[8].pressed) select(2);
-      // Y + Select not pressed
+    if (button === buttons.b) {
+      // B (A on Switch)
+      if (!overlayShown() && !e.detail.gamepad.buttons[buttons.select].pressed) select(2);
+      // B + Select not pressed
       else preview(2);
     }
 
-    if (button === 2 && overlayShown()) select(previewIndex); // B
+    // Select on overlay when A pressed
+    if (button === buttons.a && overlayShown()) {
+      select(previewIndex);
+    }
 
-    if (button === 4) {
-      // L1
+    // L1
+    if (button === buttons.l1) {
       if (overlayShown()) preview(previewIndex - 1);
       else back.click();
     }
 
-    if (button === 5) {
-      // R1
+    // R1
+    if (button === buttons.r1) {
       if (overlayShown()) preview(previewIndex + 1);
       else forward.click();
     }
 
-    if (button === 8) {
-      // Select
-      if (overlayShown()) {
-        toggleInfo();
-      }
+    // Select
+    if (button === buttons.select && overlayShown()) {
+      toggleInfo();
     }
 
-    if (button === 9) {
-      // Start
-      if (e.detail.gamepad.buttons[8].pressed) toggleFullscreen();
+    // Start
+    if (button === buttons.start) {
       // Start + Select
+      if (e.detail.gamepad.buttons[buttons.select].pressed) toggleFullscreen();
       else if (overlayShown()) hideOverlay();
       else preview(0);
     }
