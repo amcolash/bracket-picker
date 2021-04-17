@@ -1,11 +1,12 @@
 # Dependency Stage
-FROM mhart/alpine-node:10
+FROM mhart/alpine-node:14
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # Add testing alpine repo and install dependencies
 RUN echo @community http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
+  echo http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && \
   apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@community bash
 
 # Grab exifautotran
