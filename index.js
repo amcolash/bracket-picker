@@ -269,6 +269,15 @@ async function isDirUseful(dir) {
   return false;
 }
 
+async function existHelper(file) {
+  try {
+    const s = await fs.stat(file);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 async function extractPreviews() {
   var modified = false;
 
@@ -288,13 +297,13 @@ async function extractPreviews() {
     const tmpLargeThumbFile = tmpDir + 'tn_lg_' + fileNoExt + '.jpg';
 
     try {
-      const fileExists = await fs.exists(tmpFile);
-      const thumbExists = await fs.exists(tmpThumbFile);
-      const largeThumbExists = await fs.exists(tmpLargeThumbFile);
+      const fileExists = await existHelper(tmpFile);
+      const thumbExists = await existHelper(tmpThumbFile);
+      const largeThumbExists = await existHelper(tmpLargeThumbFile);
       if (!fileExists || !thumbExists || !largeThumbExists) {
         if (!fileExists) console.log(tmpFile + ' does not exist');
         if (!thumbExists) console.log(tmpThumbFile + ' does not exist');
-        if (!largeThumbExists) console.log(tmpThumbFile + ' does not exist');
+        if (!largeThumbExists) console.log(tmpLargeThumbFile + ' does not exist');
         modified = true;
         break;
       }
@@ -314,7 +323,7 @@ async function extractPreviews() {
     // Extract images to tmpDir
 
     setState('Extracting raw previews');
-    await runCommand('exiftool -b -previewimage -w ' + escapedTmp + '%f.jpg --ext jpg ' + escapedDir);
+    await runCommand(`exiftool -b -previewimage -w ${escapedTmp}%f.jpg --ext jpg ${escapedDir}`);
 
     console.log('Checking tmp dir');
     const dirFiles = await fs.readdir(tmpDir, { withFileTypes: true });
@@ -326,32 +335,32 @@ async function extractPreviews() {
     if (filtered.length > 0) {
       // Extract exif tags from source files to tmpDir
       setState('Extracting exif data from files');
-      await runCommand('exiftool -json ' + escapedDir + ' > ' + escapedTmp + 'tags.json');
+      await runCommand(`exiftool -json ${escapedDir} > ${escapedTmp}tags.json`);
 
       // Write tags to extracted images
       setState('Writing exif data to preview files');
-      await runCommand('exiftool -tagsfromfile @ -exif:all -srcfile ' + escapedTmp + '%f.jpg -overwrite_original --ext jpg ' + escapedDir);
+      await runCommand(`exiftool -tagsfromfile @ -exif:all -srcfile ${escapedTmp}%f.jpg -overwrite_original --ext jpg ${escapedDir}`);
 
       // Fix orientation of vertical images
       setState('Auto rotating preview images');
-      await runCommand('exifautotran ' + escapedTmp + '*.jpg');
+      await runCommand(`exifautotran ${escapedTmp}*.jpg`);
 
       // Make large images first
       setState('Generating large thumbnails from full-size previews');
-      await runCommand('vipsthumbnail ' + escapedTmp + '*.jpg -s 2000 -o tn_lg_%s.jpg');
+      await runCommand(`vipsthumbnail ${escapedTmp}*.jpg -s 2000 -o tn_lg_%s.jpg`);
 
       // Resizing from already smaller images to tiny thumbnails is much faster
       setState('Generating small thumbnails from large thumbnails');
-      await runCommand('vipsthumbnail ' + escapedTmp + 'tn_lg_*.jpg -s 700');
+      await runCommand(`vipsthumbnail ${escapedTmp}tn_lg_*.jpg -s 700`);
 
       // Fix double named things (since it is easiest this way)
       setState('Fixing thumbnail names');
-      await runCommand('for file in ' + escapedTmp + 'tn_tn_lg_*.jpg; do mv "$file" "${file/tn_lg_/}";done;');
+      await runCommand(`for file in ${escapedTmp}tn_tn_lg_*.jpg; do mv "$file" "\${file/tn_lg_/}";done;`);
     } else {
-      console.log("Didn't find any files in", dir);
+      console.log(`Didn't find any files in ${dir}`);
     }
   } else {
-    console.log('Files up to date in ' + tmpDir + ', not re-extracting');
+    console.log(`Files up to date in ${tmpDir}, not re-extracting`);
   }
 }
 
