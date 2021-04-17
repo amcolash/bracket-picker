@@ -10,11 +10,11 @@ RUN echo @community http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/
   apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@community bash
 
 # Grab exifautotran
-RUN wget -P /usr/bin/ https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran && \
+RUN curl https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran --output /usr/bin/exifautotran && \
   chmod +x /usr/bin/exifautotran
 
 # Grab jpegexiforient
-RUN wget -P /tmp https://raw.githubusercontent.com/CiderMan/jpegexiforient/master/jpegexiforient.c && \
+RUN curl https://raw.githubusercontent.com/CiderMan/jpegexiforient/master/jpegexiforient.c --output /tmp/jpegexiforient.c && \
   gcc /tmp/jpegexiforient.c -o /usr/bin/jpegexiforient
 
 # For caching purposes, install deps without other changed files
