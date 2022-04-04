@@ -115,9 +115,9 @@ function initServer() {
   });
   app.use('/', express.static(__dirname + '/app'));
 
-  app.get('/dir', (req, res) => res.send({ dir: dir, tmpDir: tmpDir, relative: path.relative(baseDir || '', dir || '') }));
-  app.get('/dirs', (req, res) => res.send({ dirs: dirs, baseDir: baseDir, singleDir: singleDir }));
-  app.get('/data', (req, res) => res.send({ sets: sets, movedEmpty: movedEmpty }));
+  app.get('/dir', (req, res) => res.send({ dir, tmpDir, relative: path.relative(baseDir || '', dir || '') }));
+  app.get('/dirs', (req, res) => res.send({ dirs, baseDir, singleDir }));
+  app.get('/data', (req, res) => res.send({ sets, movedEmpty }));
   app.get('/state', (req, res) => res.send(state));
 
   app.post('/move', (req, res) => move(req, res));
@@ -137,7 +137,8 @@ function resolveDir(dir) {
 
 async function setDir(newDir, res) {
   dir = resolveDir(newDir);
-  console.log('setting base dir to', dir);
+  console.log('Setting base dir to', dir);
+  updateTmp();
 
   if (await !fs.exists(dir)) {
     console.error(dir + ' does not exist');
@@ -148,16 +149,19 @@ async function setDir(newDir, res) {
   setState('Running batch extraction', '');
   if (res) res.sendStatus(200);
 
-  setTmp(path.basename(dir) + '/');
   extractPreviews();
   sets = await getMetadata(false);
 
   setState('Complete');
 }
 
-function setTmp(tmp) {
+function updateTmp() {
+  const tmp = path.relative(rootDir, dir);
+
   tmpDir = resolveDir(baseTmpDir + tmp);
-  console.log('setting tmp dir to ', tmpDir);
+  fs.mkdirpSync(tmpDir);
+
+  console.log('Setting tmp dir to ', tmpDir);
 
   app.use('/previews', express.static(tmpDir, { maxage: '2w' }));
 }
@@ -233,7 +237,7 @@ async function getDirTree(directory) {
     if (batchPaths.length === 1) {
       // If there is only a single directory, set it up here
       dir = directory;
-      setTmp(path.basename(dir) + '/');
+      updateTmp();
       sets = await getMetadata(false);
 
       singleDir = true;
@@ -336,7 +340,11 @@ async function extractPreviews() {
     if (filtered.length > 0) {
       // Extract exif tags from source files to tmpDir
       setState('Extracting exif data from files');
-      await runCommand(`exiftool -json ${escapedDir} > ${escapedTmp}tags.json`);
+
+      // More reliable than piping for some reason?
+      const data = await runCommand('exiftool -json ' + escapedDir);
+      const tagFile = path.join(escapedTmp + '/tags.json');
+      fs.writeFileSync(tagFile, data);
 
       // Write tags to extracted images
       setState('Writing exif data to preview files');
@@ -369,15 +377,18 @@ function setState(text, progress) {
   state.text = text;
   if (progress !== undefined) state.progress = progress;
 
-  console.log(text);
+  console.log(text, progress || '');
 }
 
 async function runCommand(command) {
+  // console.log(`$ ${command}`);
   try {
     const c = await awaitExec(command);
 
-    // console.log(`${c.stdout}`);
-    // console.log(`${c.stderr}`);
+    // console.log(`${c.stdout.trim()}`);
+    // console.log(`${c.stderr.trim()}`);
+
+    return c.stdout.trim();
   } catch (err) {
     console.error(err);
   }
@@ -409,25 +420,34 @@ function getMetadata(forced) {
         movedEmpty = !files || files.length === 0;
       });
 
-      const tags = tmpDir + 'tags.json';
-      const tagsExist = await fs.exists(tags);
+      const escapedDir = dir.replace(/\ /g, '\\ ');
+      const escapedTmp = tmpDir.replace(/\ /g, '\\ ');
+      const tagFile = path.join(escapedTmp + '/tags.json');
+
+      const tagsExist = await fs.exists(tagFile);
+
       if (forced || !tagsExist) {
-        const escapedDir = dir.replace(/\ /g, '\\ ');
-        const escapedTmp = tmpDir.replace(/\ /g, '\\ ');
-        await runCommand('exiftool -json ' + escapedDir + ' > ' + escapedTmp + 'tags.json');
+        // More reliable than piping for some reason?
+        const data = await runCommand('exiftool -json ' + escapedDir);
+        fs.writeFileSync(tagFile, data);
       }
 
-      fs.readFile(tags, (err, data) => {
+      fs.readFile(tagFile, (err, data) => {
         if (err) {
           console.error(err);
-          resolve([]);
+          resolve({});
         } else {
-          resolve(generateSets(JSON.parse(data)));
+          try {
+            resolve(generateSets(JSON.parse(data)));
+          } catch (err) {
+            console.error(err);
+            resolve({});
+          }
         }
       });
     } catch (e) {
       console.error(e);
-      resolve([]);
+      resolve({});
     }
   });
 }
