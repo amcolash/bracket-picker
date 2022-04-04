@@ -4,10 +4,11 @@ FROM mhart/alpine-node:14
 # Create app directory
 WORKDIR /usr/src/app
 
-# Add testing alpine repo and install dependencies
-RUN echo @community http://nl.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && \
-  echo http://nl.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && \
-  apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils vips-tools@community bash curl
+# Add most dependencies
+RUN apk add --no-cache exiftool gcc libc-dev libjpeg-turbo-utils bash curl
+
+# Add libvips from community repo (using the 3.14 alpine tagged version since edge seems to be broken)
+RUN apk add --update --no-cache --repository http://dl-3.alpinelinux.org/alpine/v3.14/community --repository http://dl-3.alpinelinux.org/alpine/v3.14/main vips-tools
 
 # Grab exifautotran
 RUN curl https://raw.githubusercontent.com/freedesktop-unofficial-mirror/libjpeg/master/extra/exifautotran --output /usr/bin/exifautotran && \
