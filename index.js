@@ -4,7 +4,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const nodedir = require('node-dir');
 
-const baseTmpDir = '/tmp/bracket-picker/';
+const baseTmpDir = (fs.existsSync('/tmp-ext') ? '/tmp-ext' : '/tmp') + '/bracket-picker/';
+console.log(`Using tmp dir: ${baseTmpDir}`);
 
 // Disable vips warnings to avoid lots of logs
 process.env.VIPS_WARNING = 'false';
@@ -258,7 +259,7 @@ async function isDirUseful(dir) {
 
   for (var i = 0; i < files.length; i++) {
     const file = files[i];
-    if (file.isDirectory()) continue;
+    // if (file.isDirectory()) continue;
 
     const ext = path.extname(file.name).toLowerCase().trim();
     if (ext.length === 0 || extensionList.filter((s) => s.endsWith(ext)).length === 0) continue;
@@ -286,7 +287,7 @@ async function extractPreviews() {
   const files = await fs.readdir(dir, { withFileTypes: true });
   for (var i = 0; i < files.length; i++) {
     const file = files[i];
-    if (file.isDirectory()) continue;
+    // if (file.isDirectory()) continue;
 
     const ext = path.extname(file.name).toLowerCase().trim();
     if (ext.length === 0 || extensionList.filter((s) => s.includes(ext)).length === 0) continue;
