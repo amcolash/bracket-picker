@@ -341,10 +341,10 @@ async function extractPreviews() {
     setState(`Extracting raw previews for ${dir} into ${tmpDir}`);
     await runCommand(`exiftool -b -previewimage -w ${escapedTmp}%f.jpg --ext jpg ${escapedDir}`);
 
-    console.log('Checking tmp dir');
+    console.log('Checking tmp dir for extracted files (if applicable)');
     const dirFiles = await fs.readdir(tmpDir, { withFileTypes: true });
     const filtered = dirFiles.filter((path) => {
-      return path.isFile() && path.name.indexOf('.jpg') !== -1;
+      return path.name.toLowerCase().indexOf('.jpg') !== -1;
     });
 
     // Only deal with dirs that contain extracted jpeg files
