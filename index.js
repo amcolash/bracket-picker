@@ -434,9 +434,7 @@ function getMetadata(forced) {
       const tagsExist = await fs.exists(tagFile);
 
       if (forced || !tagsExist) {
-        // More reliable than piping for some reason?
-        const data = await runCommand(`exiftool -json ${escapedDir}`);
-        fs.writeFileSync(tagFile, data);
+        await runCommand(`exiftool -json ${escapedDir} > ${tagFile}`);
       }
 
       fs.readFile(tagFile, (err, data) => {
