@@ -137,11 +137,11 @@ function resolveDir(dir) {
 
 async function setDir(newDir, res) {
   dir = resolveDir(newDir);
-  console.log('Setting base dir to', dir);
+  console.log(`Setting base dir to ${dir}`);
   updateTmp();
 
   if (await !fs.exists(dir)) {
-    console.error(dir + ' does not exist');
+    console.error(`${dir} does not exist`);
     if (res) res.sendStatus(404);
     return;
   }
@@ -161,7 +161,7 @@ function updateTmp() {
   tmpDir = resolveDir(baseTmpDir + tmp);
   fs.mkdirpSync(tmpDir);
 
-  console.log('Setting tmp dir to ', tmpDir);
+  console.log(`Setting tmp dir to ${tmpDir}`);
 
   app.use('/previews', express.static(tmpDir, { maxage: '2w' }));
 }
@@ -213,8 +213,8 @@ async function getDirTree(directory) {
     await recurse(dirs[0], '');
 
     // Run a batch extract of all folders in the root directory
-    console.log('Running batch extract on all folders in root directory:', directory);
-    console.log('Base Dir is ', baseDir);
+    console.log(`Running batch extract on all folders in root directory ${directory}`);
+    console.log(`Base Dir is ${baseDir}`);
     console.log('---------------------------------------------------------------');
 
     const batchPaths = await filterAsync(paths, async (path) => {
@@ -288,7 +288,7 @@ async function existHelper(file) {
 async function extractPreviews() {
   var modified = false;
 
-  console.log('Checking files in ' + tmpDir);
+  console.log(`Checking files in ${tmpDir}`);
 
   const files = await fs.readdir(dir, { withFileTypes: true });
   for (var i = 0; i < files.length; i++) {
@@ -308,9 +308,9 @@ async function extractPreviews() {
       const thumbExists = await existHelper(tmpThumbFile);
       const largeThumbExists = await existHelper(tmpLargeThumbFile);
       if (!fileExists || !thumbExists || !largeThumbExists) {
-        if (!fileExists) console.log(tmpFile + ' does not exist');
-        if (!thumbExists) console.log(tmpThumbFile + ' does not exist');
-        if (!largeThumbExists) console.log(tmpLargeThumbFile + ' does not exist');
+        if (!fileExists) console.log(`${tmpFile} does not exist`);
+        if (!thumbExists) console.log(`${tmpThumbFile} does not exist`);
+        if (!largeThumbExists) console.log(`${tmpLargeThumbFile} does not exist`);
         modified = true;
         break;
       }
@@ -329,7 +329,7 @@ async function extractPreviews() {
 
     // Extract images to tmpDir
 
-    setState('Extracting raw previews');
+    setState(`Extracting raw previews for ${dir} into ${tmpDir}`);
     await runCommand(`exiftool -b -previewimage -w ${escapedTmp}%f.jpg --ext jpg ${escapedDir}`);
 
     console.log('Checking tmp dir');
@@ -344,8 +344,8 @@ async function extractPreviews() {
       setState('Extracting exif data from files');
 
       // More reliable than piping for some reason?
-      const data = await runCommand('exiftool -json ' + escapedDir);
-      const tagFile = path.join(escapedTmp + '/tags.json');
+      const data = await runCommand(`exiftool -json ${scapedDir}`);
+      const tagFile = path.join(`${escapedTmp}/tags.json`);
       fs.writeFileSync(tagFile, data);
 
       // Write tags to extracted images
@@ -430,7 +430,7 @@ function getMetadata(forced) {
 
       if (forced || !tagsExist) {
         // More reliable than piping for some reason?
-        const data = await runCommand('exiftool -json ' + escapedDir);
+        const data = await runCommand(`exiftool -json ${escapedDir}`);
         fs.writeFileSync(tagFile, data);
       }
 
@@ -558,7 +558,7 @@ async function move(req, res) {
   for (var i = 0; i < files.length; i++) {
     const file = path.normalize(files[i]);
     const fileDest = dest + path.basename(file);
-    console.log('moving', file, 'to', fileDest);
+    console.log(`Moving ${file} to ${fileDest}`);
 
     try {
       await fs.move(file, fileDest);
@@ -582,7 +582,7 @@ async function undo(req, res) {
       const file = dir + 'moved/' + files[i];
       const fileDest = dir + path.basename(files[i]);
 
-      console.log('moving', file, 'to', fileDest);
+      console.log(`Moving ${file} to ${fileDest}`);
       await fs.move(file, fileDest);
     }
   } catch (err) {
