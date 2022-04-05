@@ -351,11 +351,7 @@ async function extractPreviews() {
     if (filtered.length > 0) {
       // Extract exif tags from source files to tmpDir
       setState('Extracting exif data from files');
-
-      // More reliable than piping for some reason?
-      const data = await runCommand(`exiftool -json ${escapedDir}`);
-      const tagFile = path.join(`${escapedTmp}/tags.json`);
-      fs.writeFileSync(tagFile, data);
+      await runCommand(`exiftool -json ${escapedDir} > ${escapedTmp}/tags.json`);
 
       // Write tags to extracted images
       setState('Writing exif data to preview files');
