@@ -55,15 +55,15 @@ const extensionList = [
   '.x3f',
 ];
 
-var dir;
-var tmpDir;
-var baseDir;
-var rootDir;
-var sets = {};
-var dirs = {};
-var singleDir = false;
-var movedEmpty = true;
-var state = { text: 'Initializing', progress: '' };
+let dir;
+let tmpDir;
+let baseDir;
+let rootDir;
+let sets = {};
+let dirs = {};
+let singleDir = false;
+let movedEmpty = true;
+let state = { text: 'Initializing', progress: '' };
 
 const PORT = 8080;
 const app = express();
@@ -130,7 +130,7 @@ function initServer() {
 }
 
 function resolveDir(dir) {
-  var resolved = path.resolve(dir);
+  let resolved = path.resolve(dir);
   if (resolved[resolved.length - 1] !== '/') resolved += '/';
   return resolved;
 }
@@ -224,7 +224,7 @@ async function getDirTree(directory) {
       return useful && !matches;
     });
 
-    for (var i = 0; i < batchPaths.length; i++) {
+    for (let i = 0; i < batchPaths.length; i++) {
       console.log('\n');
       setState('Running batch extraction', i + 1 + ' / ' + batchPaths.length);
 
@@ -264,7 +264,7 @@ async function filterAsync(arr, callback) {
 async function isDirUseful(dir) {
   const files = await fs.readdir(dir, { withFileTypes: true });
 
-  for (var i = 0; i < files.length; i++) {
+  for (let i = 0; i < files.length; i++) {
     const file = files[i];
     // if (file.isDirectory()) continue;
 
@@ -287,12 +287,20 @@ async function existHelper(file) {
 }
 
 async function extractPreviews() {
-  var modified = false;
+  let modified = false;
 
   console.log(`Checking files in ${tmpDir}`);
 
   const files = await fs.readdir(dir, { withFileTypes: true });
-  for (var i = 0; i < files.length; i++) {
+
+  const totalFiles = files.filter((f) => {
+    const ext = path.extname(f.name).toLowerCase().trim();
+    return extensionList.filter((s) => s.includes(ext)).length > 0;
+  }).length;
+
+  console.log(`Found ${totalFiles} useful files`);
+
+  for (let i = 0; i < files.length; i++) {
     const file = files[i];
     // if (file.isDirectory()) continue;
 
@@ -345,7 +353,7 @@ async function extractPreviews() {
       setState('Extracting exif data from files');
 
       // More reliable than piping for some reason?
-      const data = await runCommand(`exiftool -json ${scapedDir}`);
+      const data = await runCommand(`exiftool -json ${escapedDir}`);
       const tagFile = path.join(`${escapedTmp}/tags.json`);
       fs.writeFileSync(tagFile, data);
 
@@ -466,8 +474,8 @@ function generateSets(data) {
 
   // Sort files in ascending order
   const files = filtered.sort((a, b) => {
-    var x = a.SourceFile.toLowerCase();
-    var y = b.SourceFile.toLowerCase();
+    const x = a.SourceFile.toLowerCase();
+    const y = b.SourceFile.toLowerCase();
     if (x < y) {
       return -1;
     }
@@ -477,7 +485,7 @@ function generateSets(data) {
     return 0;
   });
 
-  for (var i = 0; i < files.length; i++) {
+  for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const strippedFile = {
       SourceFile: file.SourceFile,
@@ -499,7 +507,7 @@ function generateSets(data) {
   }
 
   for (i = 0; i < files.length; i++) {
-    var fileList = [files[i]];
+    const fileList = [files[i]];
     sets[files[i].SourceFile] = fileList;
 
     // reset cycle
@@ -507,7 +515,7 @@ function generateSets(data) {
     if (bracket == 0) {
       const fileNumber = getFileNumber(files[i]);
 
-      var inc = 0;
+      let inc = 0;
       if (
         i + 1 < files.length &&
         ((getFileNumber(files[i + 1]) === fileNumber + 1 && getBracket(files[i + 1]) < bracket) ||
@@ -532,9 +540,9 @@ function generateSets(data) {
       }
     }
 
-    fileList = fileList.sort((a, b) => {
-      var x = eval(a.AEBBracketValue);
-      var y = eval(b.AEBBracketValue);
+    fileList.sort((a, b) => {
+      const x = eval(a.AEBBracketValue);
+      const y = eval(b.AEBBracketValue);
       return Math.sign(x - y);
     });
   }
@@ -556,7 +564,7 @@ async function move(req, res) {
   const dest = dir + 'moved/';
   await fs.mkdirp(dest);
 
-  for (var i = 0; i < files.length; i++) {
+  for (let i = 0; i < files.length; i++) {
     const file = path.normalize(files[i]);
     const fileDest = dest + path.basename(file);
     console.log(`Moving ${file} to ${fileDest}`);
@@ -579,7 +587,7 @@ async function move(req, res) {
 async function undo(req, res) {
   try {
     const files = await fs.readdir(dir + 'moved/');
-    for (var i = 0; i < files.length; i++) {
+    for (let i = 0; i < files.length; i++) {
       const file = dir + 'moved/' + files[i];
       const fileDest = dir + path.basename(files[i]);
 
