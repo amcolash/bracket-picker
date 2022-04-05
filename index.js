@@ -226,8 +226,10 @@ async function getDirTree(directory) {
 
     for (var i = 0; i < batchPaths.length; i++) {
       setState('Running batch extraction', i + 1 + ' / ' + batchPaths.length);
+
       dir = resolveDir(batchPaths[i]);
-      tmpDir = resolveDir(baseTmpDir + path.basename(dir));
+      updateTmp();
+
       await extractPreviews();
     }
 
