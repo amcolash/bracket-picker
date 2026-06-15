@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   bracket-picker:
     image: amcolash/bracket-picker
@@ -9,8 +9,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ${PHOTO_DIR}:/photos
       - ./tmp:/tmp/bracket-picker
-    ports:
-      - 8080:8080
+    network_mode: "host"
     entrypoint: node /usr/src/app/index.js /photos
     env_file:
       - .env
+    environment:
+      - NODE_ENV=production
